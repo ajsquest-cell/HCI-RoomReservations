@@ -52,22 +52,22 @@ ANNOUNCEMENTS = [
 ]
 
 
-def CleanString(string: str) -> str:
+def clean_string(string: str) -> str:
     return string.lower().strip()
 
 
-def RoomSearchSuggestions(search_term: str) -> list[str]:
+def room_search_suggestions(search_term: str) -> list[str]:
     """
     Not ideal to load list of rooms every call, could compile list in memory on client-side as
     part of ui loading or something
     """
     suggestions: list[str] = []
     current_room_name: str = ""
-    clean_search_term: str = CleanString(search_term)
+    clean_search_term: str = clean_string(search_term)
 
     for room in ROOMS:
         current_room_name = room["name"]
-        if clean_search_term in CleanString(current_room_name):
+        if clean_search_term in clean_string(current_room_name):
             suggestions.append(current_room_name)
 
     return suggestions
@@ -85,25 +85,19 @@ MEDIA_LAB_1 = "Media Lab 1"
 GROUP_STUDY_POD_C = "Group Study Pod C"
 
 
-def RoomSearchTest(search_term: str, expected_suggestions: list[str]):
-    suggestions = RoomSearchSuggestions(search_term)
+def _room_search_test(search_term: str, expected_suggestions: list[str]):
+    suggestions = _room_search_test(search_term)
     for room in expected_suggestions:
         assert room in suggestions
 
 
-def AllRoomSearchSuggestionTests():
-    RoomSearchTest("ST", [STUDY_ROOM_204, STUDY_ROOM_210, GROUP_STUDY_POD_C])
-    RoomSearchTest("M", [STUDY_ROOM_204, STUDY_ROOM_210,
-                   CONFERENCE_ROOM_A, MEDIA_LAB_1])
-    RoomSearchTest("\t\nMeDIA    ", [MEDIA_LAB_1])
+def _all_room_search_suggestion_tests():
+    _room_search_test(
+        "ST", [STUDY_ROOM_204, STUDY_ROOM_210, GROUP_STUDY_POD_C])
+    _room_search_test("M", [STUDY_ROOM_204, STUDY_ROOM_210,
+                            CONFERENCE_ROOM_A, MEDIA_LAB_1])
+    _room_search_test("\t\nMeDIA    ", [MEDIA_LAB_1])
 
 
 if __name__ == "__main__":
-    # # print("Hello world!")
-    # val = RoomSearchSuggestions("")
-    # for roomName in val:
-    #     print(f"{roomName}")
-
-    # RoomSearchTests()
-
-    AllRoomSearchSuggestionTests()
+    _all_room_search_suggestion_tests()
