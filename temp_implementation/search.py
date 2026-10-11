@@ -1,7 +1,7 @@
 
 """
 Going to copy-paste current api code since I don't really have anything to 
-go on with my implementation at the momenent, then can adjust later.
+go on with my implementation at the moment, then can adjust later.
 
 """
 
@@ -52,18 +52,58 @@ ANNOUNCEMENTS = [
 ]
 
 
-def RoomSearchSuggestions(word: str) -> list[str]:
+def CleanString(string: str) -> str:
+    return string.lower().strip()
+
+
+def RoomSearchSuggestions(search_term: str) -> list[str]:
     """
-    Not ideal to load list of rooms every call
+    Not ideal to load list of rooms every call, could compile list in memory on client-side as
+    part of ui loading or something
     """
-    room_names: list[str] = []
+    suggestions: list[str] = []
+    current_room_name: str = ""
+    clean_search_term: str = CleanString(search_term)
+
     for room in ROOMS:
-        room_names.append(room["name"])
-    return room_names
+        current_room_name = room["name"]
+        if clean_search_term in CleanString(current_room_name):
+            suggestions.append(current_room_name)
+
+    return suggestions
+
+
+"""
+Rooms:
+"Study Room 204", "Study Room 210", "Conference Room A",
+"Media Lab 1", "Group Study Pod C",
+"""
+STUDY_ROOM_204 = "Study Room 204"
+STUDY_ROOM_210 = "Study Room 210"
+CONFERENCE_ROOM_A = "Conference Room A"
+MEDIA_LAB_1 = "Media Lab 1"
+GROUP_STUDY_POD_C = "Group Study Pod C"
+
+
+def RoomSearchTest(search_term: str, expected_suggestions: list[str]):
+    suggestions = RoomSearchSuggestions(search_term)
+    for room in expected_suggestions:
+        assert room in suggestions
+
+
+def AllRoomSearchSuggestionTests():
+    RoomSearchTest("ST", [STUDY_ROOM_204, STUDY_ROOM_210, GROUP_STUDY_POD_C])
+    RoomSearchTest("M", [STUDY_ROOM_204, STUDY_ROOM_210,
+                   CONFERENCE_ROOM_A, MEDIA_LAB_1])
+    RoomSearchTest("\t\nMeDIA    ", [MEDIA_LAB_1])
 
 
 if __name__ == "__main__":
-    # print("Hello world!")
-    val = RoomSearchSuggestions("hello world")
-    for roomName in val:
-        print(f"{roomName}")
+    # # print("Hello world!")
+    # val = RoomSearchSuggestions("")
+    # for roomName in val:
+    #     print(f"{roomName}")
+
+    # RoomSearchTests()
+
+    AllRoomSearchSuggestionTests()
