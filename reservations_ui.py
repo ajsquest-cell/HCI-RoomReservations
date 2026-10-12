@@ -117,8 +117,9 @@ def main_page():
     if rooms and state["room_id"] is None:
         state["room_id"] = rooms[0]["id"]
 
-    with ui.card():
-        ui.button("More Details", on_click=lambda: render_room_details(rooms, 10))
+    # # Example room details usage
+    # with ui.card().tight():
+    #     ui.button("More Details", on_click=lambda: render_room_details(rooms, 1))
 
     with ui.row().classes("w-full no-wrap"):
         with ui.column().classes("w-1/4 p-2"):
