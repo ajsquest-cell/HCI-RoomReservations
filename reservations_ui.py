@@ -86,9 +86,6 @@ def main_page():
 
 @ui.refreshable
 def render_content():
-    render_announcements()
-    ui.separator()
-
     room_id = state["room_id"]
     if room_id is None:
         ui.label("No room selected")
@@ -124,6 +121,8 @@ def render_content():
 
     ui.separator()
     render_my_reservations()
+    ui.separator()
+    render_announcements()
 
 
 def render_my_reservations():
@@ -144,6 +143,13 @@ def render_my_reservations():
 
 def render_announcements():
     announcements = api_get("/announcements")
+
+    # Sort announcements from newest to oldest
+    for a in announcements:
+        a["posted_datetime"] = datetime.strptime(
+            a["posted"], "%Y-%m-%dT%H:%M:%S")
+    announcements.sort(key=lambda item: item["posted_datetime"], reverse=True)
+
     with ui.list().props('bordered separator'):
         ui.item_label('Announcements').props('header').classes('text-bold')
         ui.separator()
@@ -155,9 +161,7 @@ def render_announcements():
                     ui.item_label(announcement["title"])
                     ui.item_label(announcement["body"]).props('caption')
                 with ui.item_section().props('side top'):
-                    simplified_date = datetime.strptime(
-                        announcement["posted"], "%Y-%m-%dT%H:%M:%S")
-                    ui.item_label(simplified_date.strftime(
+                    ui.item_label(announcement["posted_datetime"].strftime(
                         "%x")).props('caption')
 
 
