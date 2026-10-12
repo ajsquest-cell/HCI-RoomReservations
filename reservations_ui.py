@@ -65,36 +65,50 @@ def select_room(room_id: int):
     render_content.refresh()
 
 
-def render_room_details(rooms, room_id: int):
-    room = rooms[room_id]
-
-    with ui.dialog() as dialog, ui.card(align_items="center"):
-        ui.label(f'{room["name"]}').style(
-            "font-size:150%;font-weight:bold;text-align:center")
-        ui.separator()
-        with ui.card().classes("no-border no-shadow"):
-            with ui.grid(columns=2).classes("gap-x-0"):
-                ui.label("Capacity:").style("font-weight:bold")
-                ui.label(f'{room["capacity"]}')
-
-                ui.label('Type:').style("font-weight:bold")
-                ui.label(f'{room["type"].capitalize()}')
-
-                ui.label('Equipment:').style("font-weight:bold")
-                ui.label(f'{room["equipment"]}')
-
-                ui.label('Building:').style("font-weight:bold")
-                ui.label(f'{room["building"]}')
-
-        ui.button('Close', on_click=lambda: _clean_dialog(dialog))
-    dialog.open()
-
+def render_room_details(rooms: list(dict), room_id: int) -> None:
     def _clean_dialog(dialog):
         """
         Dialogs must be cleared before closing or reused.
         """
         dialog.clear()
         dialog.close()
+
+    room: dict = {}
+    for r in rooms:
+        if r["id"] == room_id:
+            room = r
+            break
+
+    if not room:  # Did not successfully find room to display details for.
+        print(f"render_room_details() - Warning: room_id {
+              room_id} invalid. Room does not exist in given set of rooms.")
+
+        with ui.dialog() as dialog, ui.card(align_items="center"):
+            ui.label("Whoops...").style("font-size:150%")
+            ui.label("Details for the requested room are currently unavailable...")
+            ui.button('Close', on_click=lambda: _clean_dialog(dialog))
+        dialog.open()
+        return
+
+    with ui.dialog() as dialog, ui.card(align_items="center"):
+        ui.label(f'{room["name"]}').style(
+            "font-size:150%;font-weight:bold;text-align:center")
+        ui.separator()
+        with ui.grid(columns='auto 1fr'):
+            ui.label("Capacity:").style("font-weight:bold")
+            ui.label(f'{room["capacity"]}')
+
+            ui.label('Type:').style("font-weight:bold")
+            ui.label(f'{room["type"].title()}')
+
+            ui.label('Equipment:').style("font-weight:bold")
+            ui.label(f'{room["equipment"].title()}')
+
+            ui.label('Building:').style("font-weight:bold")
+            ui.label(f'{room["building"].title()}')
+
+        ui.button('Close', on_click=lambda: _clean_dialog(dialog))
+    dialog.open()
 
 
 @ui.page("/")
@@ -104,7 +118,7 @@ def main_page():
         state["room_id"] = rooms[0]["id"]
 
     with ui.card():
-        ui.button("More Details", on_click=lambda: render_room_details(rooms, 1))
+        ui.button("More Details", on_click=lambda: render_room_details(rooms, 10))
 
     with ui.row().classes("w-full no-wrap"):
         with ui.column().classes("w-1/4 p-2"):
