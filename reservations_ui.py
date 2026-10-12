@@ -68,12 +68,24 @@ def select_room(room_id: int):
 def render_room_details(rooms, room_id: int):
     room = rooms[room_id]
 
-    with ui.dialog() as dialog, ui.card():
-        ui.label(f'Room Name: {room["name"]}')
-        ui.label(f'Building: {room["building"]}')
-        ui.label(f'Room Type: {room["type"]}')
-        ui.label(f'Room Equipment: {room["equipment"]}')
-        ui.label(f'Room Capacity: {room["capacity"]}')
+    with ui.dialog() as dialog, ui.card(align_items="center"):
+        ui.label(f'{room["name"]}').style(
+            "font-size:150%;font-weight:bold;text-align:center")
+        ui.separator()
+        with ui.card().classes("no-border no-shadow"):
+            with ui.grid(columns=2).classes("gap-x-0"):
+                ui.label("Capacity:").style("font-weight:bold")
+                ui.label(f'{room["capacity"]}')
+
+                ui.label('Type:').style("font-weight:bold")
+                ui.label(f'{room["type"].capitalize()}')
+
+                ui.label('Equipment:').style("font-weight:bold")
+                ui.label(f'{room["equipment"]}')
+
+                ui.label('Building:').style("font-weight:bold")
+                ui.label(f'{room["building"]}')
+
         ui.button('Close', on_click=lambda: _clean_dialog(dialog))
     dialog.open()
 
