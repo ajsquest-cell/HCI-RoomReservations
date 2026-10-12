@@ -22,19 +22,16 @@ from search_suggestions import search_suggestions
 
 CLIENT_PORT = 8003
 API_BASE_PORT = 8004
-API_SEARCHABLES_PORT = 8005
 
 API_BASE = f"http://localhost:{API_BASE_PORT}"
-API_SEARCHABLES = f"http://localhost:{API_SEARCHABLES_PORT}"
-
 
 # global state for "which room is selected"
 state = {"room_id": None}
 
 
-def api_get(api: str, path: str):
+def api_get(path: str):
     try:
-        resp = requests.get(f"{api}{path}", timeout=5)
+        resp = requests.get(f"{API_BASE}{path}", timeout=5)
         resp.raise_for_status()
         return resp.json()
     except requests.RequestException as e:
@@ -76,7 +73,7 @@ def select_room(room_id: int):
 
 @ui.page("/")
 def main_page():
-    rooms = api_get(API_BASE, "/rooms")
+    rooms = api_get("/rooms")
     if rooms and state["room_id"] is None:
         state["room_id"] = rooms[0]["id"]
 
@@ -99,7 +96,7 @@ def render_content():
         ui.label("No room selected")
         return
 
-    room = api_get(API_BASE, f"/rooms/{room_id}")
+    room = api_get(f"/rooms/{room_id}")
     ui.label(f'{room.get("name", "")}').classes("text-2xl")
     ui.label(
         f'{room.get("building", "")} - capacity {room.get("capacity", "")} '
@@ -107,7 +104,7 @@ def render_content():
     ).classes("text-2xl")
 
     ui.label("Today's availability").classes("text-lg")
-    slots = api_get(API_BASE, f"/rooms/{room_id}/slots")
+    slots = api_get(f"/rooms/{room_id}/slots")
     for s in slots:
         with ui.row().classes("items-center"):
             label = f'{s["slot"]} - {s["status"]}'
@@ -131,14 +128,15 @@ def render_content():
     render_my_reservations()
     ui.separator()
     render_announcements()
-    # TODO
+
+    # Example search usage
     ui.separator()
     render_test_search_bar()
 
 
 def render_my_reservations():
     ui.label("My Reservations").classes("text-lg")
-    reservations = api_get(API_BASE, "/my-reservations")
+    reservations = api_get("/my-reservations")
     if not reservations:
         ui.label("You don't have any reservations yet.")
         return
@@ -154,7 +152,7 @@ def render_my_reservations():
 
 def render_announcements():
     ui.label("Announcements").classes("text-lg")
-    announcements = api_get(API_BASE, "/announcements")
+    announcements = api_get("/announcements")
     for a in announcements:
         ui.label(a["title"])
         ui.label(a["body"])
@@ -163,7 +161,7 @@ def render_announcements():
 
 def render_test_search_bar():
     ui.label("UserName Search")
-    searchables = api_get(API_SEARCHABLES, "/searchables")
+    searchables = api_get("/searchables")
     i = ui.input(label='Text', placeholder='start typing',
                  on_change=lambda e: i.set_autocomplete(
                      update_suggestions(searchables, e.value)))
