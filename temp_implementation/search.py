@@ -93,33 +93,62 @@ def clean_string(string: str) -> str:
     return string.lower().strip()
 
 
-def room_search_suggestions(search_term: str) -> list[str]:
+# def room_search_suggestions(search_term: str) -> list[str]:
+#     """
+#     Return a list of rooms which contain the search term in their name.
+#     """
+#     suggestions: list[str] = []
+#     clean_search_term: str = _clean_string(search_term)
+#
+#     for room in RoomName:
+#         if clean_search_term in _clean_string(room):
+#             suggestions.append(room)
+#
+#     return suggestions
+
+
+def search_suggestions(search_context: StrEnum, search_term: str) -> list[str]:
     """
-    Return a list of rooms which contain the search term in their name.
+    Generate a list of search suggestions given a search context and a search term.
     """
     suggestions: list[str] = []
     clean_search_term: str = clean_string(search_term)
 
-    for room in RoomName:
-        if clean_search_term in clean_string(room):
-            suggestions.append(room)
+    for item in search_context:
+        if clean_search_term in clean_string(item):
+            suggestions.append(item)
 
     return suggestions
 
 
-def _room_search_test(search_term: str, expected_suggestions: list[str]):
-    suggestions = room_search_suggestions(search_term)
-    for room in expected_suggestions:
-        assert room in suggestions
+def generic_search_suggestion_test(search_context: StrEnum, search_term: str, expected_suggestions: list[str]) -> None:
+    actual_suggestions = search_suggestions(search_context, search_term)
+    for expected in expected_suggestions:
+        assert expected in actual_suggestions
 
 
-def _all_room_search_suggestion_tests():
-    _room_search_test(
-        "ST", [RoomName.STUDY_ROOM_204, RoomName.STUDY_ROOM_210, RoomName.GROUP_STUDY_POD_C])
-    _room_search_test("M", [RoomName.STUDY_ROOM_204, RoomName.STUDY_ROOM_210,
-                            RoomName.CONFERENCE_ROOM_A, RoomName.MEDIA_LAB_1])
-    _room_search_test("\t\nMeDIA    ", [RoomName.MEDIA_LAB_1])
+def search_suggestion_tests() -> None:
+    """
+    Not many tests, but this is a pretty simple implementation (WHICH MIGHT HAVE TO CHANGE)
+    """
+    # Room Tests
+    generic_search_suggestion_test(
+        RoomName, "ST", [RoomName.STUDY_ROOM_204, RoomName.STUDY_ROOM_210, RoomName.GROUP_STUDY_POD_C])
+    generic_search_suggestion_test(
+        RoomName, "M", [RoomName.STUDY_ROOM_204, RoomName.STUDY_ROOM_210, RoomName.CONFERENCE_ROOM_A, RoomName.MEDIA_LAB_1])
+    generic_search_suggestion_test(
+        RoomName, "\t\nMeDIA    ", [RoomName.MEDIA_LAB_1])
+
+    # User Tests
+    generic_search_suggestion_test(
+        UserName, "\t\nu    ", [UserName.YOU])
+    generic_search_suggestion_test(
+        UserName, "\t\n   A    ", [UserName.DOLLY_PARTON])
+    generic_search_suggestion_test(
+        UserName, "You", [UserName.YOU])
+    generic_search_suggestion_test(
+        UserName, "o", [UserName.YOU, UserName.DOLLY_PARTON])
 
 
 if __name__ == "__main__":
-    _all_room_search_suggestion_tests()
+    search_suggestion_tests()
