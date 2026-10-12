@@ -150,9 +150,11 @@ def render_announcements():
             a["posted"], "%Y-%m-%dT%H:%M:%S")
     announcements.sort(key=lambda item: item["posted_datetime"], reverse=True)
 
-    with ui.list().props('bordered separator'):
-        ui.item_label('Announcements').props('header').classes('text-bold')
+    with ui.list().props('bordered separator') as announcement_list:
+        with ui.item_label('Announcements').props('header').classes('text-bold text-lg'):
+            ui.button("Clear", on_click=lambda: announcement_list.clear())
         ui.separator()
+
         for announcement in announcements:
             with ui.item(on_click=lambda a=announcement: ui.notify(f'Selected Announcement {a["id"]}')):
                 with ui.item_section().props('avatar'):
