@@ -30,8 +30,6 @@ API_SEARCHABLES = f"http://localhost:{API_SEARCHABLES_PORT}"
 
 # global state for "which room is selected"
 state = {"room_id": None}
-# global state for "which words are able to have search suggestions"
-searchables = []
 
 
 def api_get(api: str, path: str):
@@ -164,9 +162,21 @@ def render_announcements():
 
 
 def render_test_search_bar():
-    ui.label("hello world")
-    # search_suggestions()
+    ui.label("UserName Search")
+    searchables = api_get(API_SEARCHABLES, "/searchables")
+    i = ui.input(label='Text', placeholder='start typing',
+                 on_change=lambda e: i.set_autocomplete(
+                     update_suggestions(searchables, e.value)))
     pass
+
+
+def update_suggestions(searchables: list[dict], current_input: str) -> list[str]:
+    suggestions = []
+    for context in searchables:
+        if context["context"] == "UserName":
+            suggestions = search_suggestions(context, current_input)
+            break
+    return suggestions
 
 
 ui.run(port=8083, title="Mock Room Reservations")
