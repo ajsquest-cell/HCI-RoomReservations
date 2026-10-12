@@ -252,10 +252,10 @@ def list_searchables():
 if __name__ == "__main__":
     import uvicorn
 
-    print("All searchable contexts detected:")
-    for context in SEARCHABLE_CONTEXTS:
-        print(f"\t{context.__name__}:")
-        for item in context:
-            print(f"\t\t- {item.value}")
+    # print("All searchable contexts detected:")
+    # for context in SEARCHABLE_CONTEXTS:
+    #     print(f"\t{context.__name__}:")
+    #     for item in context:
+    #         print(f"\t\t- {item.value}")
 
     uvicorn.run(app, port=8004)

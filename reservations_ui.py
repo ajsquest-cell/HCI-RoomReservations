@@ -129,9 +129,9 @@ def render_content():
     ui.separator()
     render_announcements()
 
-    # Example search usage
-    ui.separator()
-    render_test_search_bar()
+    # # Example search usage
+    # ui.separator()
+    # render_test_search_bar()
 
 
 def render_my_reservations():
