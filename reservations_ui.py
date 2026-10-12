@@ -14,6 +14,7 @@ Run with:
 Then http://localhost:8083 will open automatically
 """
 
+from datetime import datetime
 import requests
 from nicegui import ui
 
@@ -142,7 +143,6 @@ def render_my_reservations():
 
 
 def render_announcements():
-    ui.label("Announcements").classes("text-lg")
     announcements = api_get("/announcements")
     with ui.list().props('bordered separator'):
         ui.item_label('Announcements').props('header').classes('text-bold')
@@ -154,6 +154,11 @@ def render_announcements():
                 with ui.item_section():
                     ui.item_label(announcement["title"])
                     ui.item_label(announcement["body"]).props('caption')
+                with ui.item_section().props('side top'):
+                    simplified_date = datetime.strptime(
+                        announcement["posted"], "%Y-%m-%dT%H:%M:%S")
+                    ui.item_label(simplified_date.strftime(
+                        "%x")).props('caption')
 
 
 ui.run(port=8083, title="Mock Room Reservations")
