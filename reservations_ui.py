@@ -184,9 +184,12 @@ def render_filter():
             for val in vals:
                 r_meets_requirement = [
                     r for r in all_reservations if r[param] == val]
+                print("\nALL RESERVATIONS THAT MEET REQUIREMENT:" +
+                      f"{param} == {val}: {r_meets_requirement}")
                 # don't add duplicate reservations if reservations fulfill multiple filters.
-                reservations.append(
-                    [r for r in r_meets_requirement if r not in reservations])
+                for r in r_meets_requirement:
+                    if r not in reservations:
+                        reservations.append(r)
         return reservations
 
         # # separate_filtered_reservations: list(list(dict)) = []
@@ -199,8 +202,9 @@ def render_filter():
         print(values)
         # check to make sure values are not None
         current_parameters[param] = [v for v in values if v]
+        print(f"\nCurrent Parameters: {current_parameters}")
         current_filter_reservations = _get_reservations(current_parameters)
-        print(f"filter reservations: {current_filter_reservations}")
+        print(f"\nfilter reservations: {current_filter_reservations}")
 
     all_reservations = _get_reservations()
     # print(f"Current parameters: {list(current_parameters.items())}")
@@ -211,10 +215,17 @@ def render_filter():
         ui.label("Filter")
         with ui.row(align_items="center"):
             ui.label("User:")
-            user_select = ui.select(sorted(
+            ui.select(sorted(
                 [r["reserved_by"] for r in all_reservations]),
                 on_change=lambda e: _update_filter_output(
                     "reserved_by", e.value),
+                clearable=True, multiple=True)
+        with ui.row(align_items="center"):
+            ui.label("Room:")
+            ui.select(sorted(
+                [r["room_name"] for r in all_reservations]),
+                on_change=lambda e: _update_filter_output(
+                    "room_name", e.value),
                 clearable=True, multiple=True)
 
         # with ui.row(align_items="center"):
