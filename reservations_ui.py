@@ -216,16 +216,23 @@ def render_filter():
         with ui.row(align_items="center"):
             ui.label("User:")
             ui.select(sorted(
-                [r["reserved_by"] for r in all_reservations]),
+                set([r["reserved_by"] for r in all_reservations])),
                 on_change=lambda e: _update_filter_output(
                     "reserved_by", e.value),
                 clearable=True, multiple=True)
         with ui.row(align_items="center"):
             ui.label("Room:")
             ui.select(sorted(
-                [r["room_name"] for r in all_reservations]),
+                set([r["room_name"] for r in all_reservations])),
                 on_change=lambda e: _update_filter_output(
                     "room_name", e.value),
+                clearable=True, multiple=True)
+        with ui.row(align_items="center"):
+            ui.label("Building:")
+            ui.select(sorted(
+                set([r["building"] for r in all_reservations])),
+                on_change=lambda e: _update_filter_output(
+                    "building", e.value),
                 clearable=True, multiple=True)
 
         # with ui.row(align_items="center"):
