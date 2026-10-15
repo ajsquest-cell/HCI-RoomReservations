@@ -22,6 +22,7 @@ API_BASE = "http://localhost:8004"
 # global state for "which room is selected"
 state = {"room_id": None}
 
+
 def api_get(path: str):
     try:
         resp = requests.get(f"{API_BASE}{path}", timeout=5)
@@ -30,6 +31,7 @@ def api_get(path: str):
     except requests.RequestException as e:
         ui.notify(f"Could not reach API: {e}", type="negative")
         return []
+
 
 def api_post(path: str, json: dict):
     try:
@@ -45,19 +47,23 @@ def api_post(path: str, json: dict):
         ui.notify(detail or f"Request failed: {e}", type="negative")
         return False
 
+
 def book_slot(room_id: int, slot: str):
     if api_post("/reservations/book", {"room_id": room_id, "slot": slot}):
         ui.notify("Room booked", type="positive")
         render_content.refresh()
+
 
 def cancel_reservation(reservation_id: int):
     if api_post("/reservations/cancel", {"reservation_id": reservation_id}):
         ui.notify("Reservation cancelled", type="warning")
         render_content.refresh()
 
+
 def select_room(room_id: int):
     state["room_id"] = room_id
     render_content.refresh()
+
 
 @ui.page("/")
 def main_page():
@@ -76,12 +82,16 @@ def main_page():
         with ui.column().classes("w-3/4 p-4"):
             render_content()
 
+
 @ui.refreshable
 def render_content():
     room_id = state["room_id"]
     if room_id is None:
         ui.label("No room selected")
         return
+
+    render_filter()
+    ui.separator()
 
     room = api_get(f"/rooms/{room_id}")
     ui.label(f'{room.get("name", "")}').classes("text-2xl")
@@ -101,18 +111,21 @@ def render_content():
             if s["status"] == "available":
                 ui.button(
                     "Book",
-                    on_click=lambda room_id=room_id, slot=s["slot"]: book_slot(room_id, slot),
+                    on_click=lambda room_id=room_id, slot=s["slot"]: book_slot(
+                        room_id, slot),
                 )
             elif s["reserved_by"] == "you":
                 ui.button(
                     "Cancel",
-                    on_click=lambda rid=s["reservation_id"]: cancel_reservation(rid),
+                    on_click=lambda rid=s["reservation_id"]: cancel_reservation(
+                        rid),
                 )
 
     ui.separator()
     render_my_reservations()
     ui.separator()
     render_announcements()
+
 
 def render_my_reservations():
     ui.label("My Reservations").classes("text-lg")
@@ -122,11 +135,13 @@ def render_my_reservations():
         return
     for r in reservations:
         with ui.row().classes("items-center"):
-            ui.label(f'{r["room_name"]} ({r["building"]}) - {r["date"]} {r["slot"]}')
+            ui.label(
+                f'{r["room_name"]} ({r["building"]}) - {r["date"]} {r["slot"]}')
             ui.button(
                 "Cancel",
                 on_click=lambda rid=r["id"]: cancel_reservation(rid),
             )
+
 
 def render_announcements():
     ui.label("Announcements").classes("text-lg")
@@ -135,5 +150,67 @@ def render_announcements():
         ui.label(a["title"])
         ui.label(a["body"])
         ui.separator()
+
+
+def render_filter():
+    # Filter needs to collect a set of reservations to give to calendar view
+    def _get_reservations(parameters: dict = None):
+        # # TODO: temp filter by user
+        # reservations = api_get("/all-reservations")
+        # # filtered_reservations = filter(
+        # #     lambda r: r["reserved_by"] == "you", reservations)
+        # # #return filtered_reservations
+        # return [r for r in reservations if r["reserved_by"] == "you"]
+
+        all_reservations = api_get("/all-reservations")
+        if not parameters:
+            return all_reservations
+
+        reservations = []
+        for param, vals in parameters.items():
+            for val in vals:
+                r_meets_requirement = [
+                    r for r in all_reservations if r[param] == val]
+                # don't add duplicate reservations if reservations fulfill multiple filters.
+                reservations.append(
+                    [r for r in r_meets_requirement if r not in reservations])
+        return reservations
+
+        # # separate_filtered_reservations: list(list(dict)) = []
+        # for param, vals in parameters.items():
+        #     # for val in vals:
+        #     #     parameter_reservations = [r for r in all_reservations if r[param]]
+        #     reservations.append([r for r in all_reservations])
+
+    def _update_filter_output():
+        print("value changed")
+
+    all_reservations = _get_reservations()
+    current_parameters = {
+        "reserved_by": [],
+        "room_name": [],
+        "building": [],
+        # TODO
+    }
+
+    with ui.card():
+        ui.label("Filter")
+        with ui.row(align_items="center"):
+            ui.label("User:")
+            ui.select(sorted(
+                [r["reserved_by"] for r in all_reservations]), on_change=_update_filter_output)
+        # with ui.row(align_items="center"):
+        #     ui.label("User:")
+        #     ui.select(sorted([r["reserved_by"] for r in all_reservations]))
+
+        # for r in _get_reservations():
+        #     with ui.row().classes("items-center"):
+        #         ui.label(
+        #             f'{r["room_name"]} ({r["building"]}) - {r["date"]} {r["slot"]}')
+        #         ui.button(
+        #             "Cancel",
+        #             on_click=lambda rid=r["id"]: cancel_reservation(rid),
+        #         )
+
 
 ui.run(port=8083, title="Mock Room Reservations")
