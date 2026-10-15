@@ -21,6 +21,8 @@ API_BASE = "http://localhost:8004"
 
 # global state for "which room is selected"
 state = {"room_id": None}
+# global filtered reservations list
+current_filter_reservations = []
 
 
 def api_get(path: str):
@@ -153,6 +155,8 @@ def render_announcements():
 
 
 def render_filter():
+    global current_filter_reservations
+
     # Filter needs to collect a set of reservations to give to calendar view
     def _get_reservations(parameters: dict = None):
         # # TODO: temp filter by user
@@ -166,6 +170,16 @@ def render_filter():
         if not parameters:
             return all_reservations
 
+        # Check if we have parameters for reservations or not
+        has_params = False
+        for params in parameters.values():
+            if params:
+                has_params = True
+                break
+        if not has_params:
+            return all_reservations
+
+        # Create list of reservations based on parameters
         reservations = []
         for param, vals in parameters.items():
             for val in vals:
@@ -182,23 +196,31 @@ def render_filter():
         #     #     parameter_reservations = [r for r in all_reservations if r[param]]
         #     reservations.append([r for r in all_reservations])
 
-    def _update_filter_output():
-        print("value changed")
+    def _update_filter_output(param: str, values: list[str]):
+        # print(val)
+        current_parameters[param].clear()
+        current_parameters[param] = values
+        current_filter_reservations = _get_reservations(current_parameters)
+        print(f"filter reservations: {current_filter_reservations}")
 
-    all_reservations = _get_reservations()
     current_parameters = {
         "reserved_by": [],
         "room_name": [],
         "building": [],
         # TODO
     }
+    all_reservations = _get_reservations()
+    # print(f"Current parameters: {list(current_parameters.items())}")
+    # print(f"Current reservations: {
+    #       list(_get_reservations(current_parameters))}")
 
     with ui.card():
         ui.label("Filter")
         with ui.row(align_items="center"):
             ui.label("User:")
-            ui.select(sorted(
-                [r["reserved_by"] for r in all_reservations]), on_change=_update_filter_output)
+            user_select = ui.select(sorted(
+                [r["reserved_by"] for r in all_reservations]), on_change=lambda e: _update_filter_output("reserved_by", [e.value]))
+
         # with ui.row(align_items="center"):
         #     ui.label("User:")
         #     ui.select(sorted([r["reserved_by"] for r in all_reservations]))
