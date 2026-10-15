@@ -20,6 +20,12 @@ Endpoints:
     POST /reservations/book     body: {"room_id": int, "slot": str}
     POST /reservations/cancel   body: {"reservation_id": int}
     GET  /announcements
+
+Search endpoints:
+    GET  /slots
+    GET  /buildings
+    GET  /availability/by-time?start=9&end=17 # get rooms 
+    GET  /availability/by-building?building=X
 """
 
 from datetime import datetime
@@ -108,6 +114,15 @@ def _slot_reservation(room_id: int, slot: str):
             return r
     return None
 
+# Helper to get open slots for a room
+def _open_slots(room_id: int):
+    return [slot for slot in SLOTS if not _slot_reservation(room_id, slot)]
+
+# slots within the start to end range
+def _slots_in_range(start: int, end: int):
+    return [slot for slot in SLOTS if start <= int(slot.split(':')[0]) < end]
+
+# GET
 
 @app.get("/rooms")
 def list_rooms():
@@ -148,6 +163,50 @@ def get_my_reservations():
 def list_announcements():
     return ANNOUNCEMENTS
 
+
+# Search
+
+# List all available slots
+@app.get("/slots")
+def list_slots():
+    return SLOTS
+
+# List all buildings
+@app.get("/buildings")
+def list_buildings():
+    return sorted({room["building"] for room in ROOMS})
+
+# Get available rooms by time slots
+@app.get("/availability/by-time")
+def get_rooms_by_time(start: int, end: int):
+    if (start >= end):
+        raise HTTPException(status_code=400, detail="Invalid time range")
+    # get time range
+    slots = _slots_in_range(start, end)
+    if len(slots) != end - start:
+        raise HTTPException(status_code=400, detail="Time range includes non-open hours")
+    available_rooms = []
+    # find available rooms
+    for room in ROOMS:
+        if all(slot in _open_slots(room["id"]) for slot in slots):
+            available_rooms.append(room)
+    return available_rooms
+
+# Get avalability by building
+@app.get("/availability/by-building")
+def get_rooms_by_building(building: str):
+    if building not in {room["building"] for room in ROOMS}:
+        raise HTTPException(status_code=400, detail=f"Invalid building: {building}")
+
+    return [r for r in ROOMS if r["building"] == building and _open_slots(r["id"])]
+
+# Get avalability by room
+@app.get("/availability/by-room")
+def get_rooms_by_room(room_id: int):
+    _get_room_or_404(room_id)
+    return _open_slots(room_id)
+
+# POST
 
 @app.post("/reservations/book")
 def book_reservation(req: BookRequest):
