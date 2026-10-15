@@ -156,16 +156,15 @@ def render_announcements():
 
 def render_filter():
     global current_filter_reservations
+    current_parameters = {
+        "reserved_by": [],
+        "room_name": [],
+        "building": [],
+        # TODO
+    }
 
     # Filter needs to collect a set of reservations to give to calendar view
     def _get_reservations(parameters: dict = None):
-        # # TODO: temp filter by user
-        # reservations = api_get("/all-reservations")
-        # # filtered_reservations = filter(
-        # #     lambda r: r["reserved_by"] == "you", reservations)
-        # # #return filtered_reservations
-        # return [r for r in reservations if r["reserved_by"] == "you"]
-
         all_reservations = api_get("/all-reservations")
         if not parameters:
             return all_reservations
@@ -197,18 +196,12 @@ def render_filter():
         #     reservations.append([r for r in all_reservations])
 
     def _update_filter_output(param: str, values: list[str]):
-        # print(val)
-        current_parameters[param].clear()
-        current_parameters[param] = values
+        print(values)
+        # check to make sure values are not None
+        current_parameters[param] = [v for v in values if v]
         current_filter_reservations = _get_reservations(current_parameters)
         print(f"filter reservations: {current_filter_reservations}")
 
-    current_parameters = {
-        "reserved_by": [],
-        "room_name": [],
-        "building": [],
-        # TODO
-    }
     all_reservations = _get_reservations()
     # print(f"Current parameters: {list(current_parameters.items())}")
     # print(f"Current reservations: {
@@ -219,7 +212,10 @@ def render_filter():
         with ui.row(align_items="center"):
             ui.label("User:")
             user_select = ui.select(sorted(
-                [r["reserved_by"] for r in all_reservations]), on_change=lambda e: _update_filter_output("reserved_by", [e.value]))
+                [r["reserved_by"] for r in all_reservations]),
+                on_change=lambda e: _update_filter_output(
+                    "reserved_by", e.value),
+                clearable=True, multiple=True)
 
         # with ui.row(align_items="center"):
         #     ui.label("User:")
