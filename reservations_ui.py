@@ -178,7 +178,8 @@ def render_filter():
         if not has_params:
             return all_reservations
 
-        # Create list of reservations based on parameters
+        # """
+        # Create list of reservations based on parameters (||)
         reservations = []
         for param, vals in parameters.items():
             for val in vals:
@@ -191,12 +192,20 @@ def render_filter():
                     if r not in reservations:
                         reservations.append(r)
         return reservations
+        # """
 
-        # # separate_filtered_reservations: list(list(dict)) = []
-        # for param, vals in parameters.items():
-        #     # for val in vals:
-        #     #     parameter_reservations = [r for r in all_reservations if r[param]]
-        #     reservations.append([r for r in all_reservations])
+        """
+        # Create list of reservations based on parameters (&&)
+        separate_filtered_reservations: list(list(dict)) = []
+        for param, vals in parameters.items():
+            for val in vals:
+                parameter_reservations = [r for r in all_reservations if r[param]]
+            separate_filtered_reservations.append([r for r in parameter_reservations])
+        final_reservations = []
+        for i, reservations in enumerate(separate_filtered_reservations):
+            if i == 0:
+                final_reservations.append()
+        """
 
     def _update_filter_output(param: str, values: list[str]):
         print(values)
