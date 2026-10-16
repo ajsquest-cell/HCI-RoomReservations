@@ -100,9 +100,9 @@ def main_page():
 def render_content():
 
     if state["page"] == 1:
-        with ui.row().classes("w-full"):
+        with ui.row().classes("w-full no-wrap"):
             render_filter()
-            calendar_view(api_get("/my-reservations"))
+            calendar_view(api_get(current_filter_reservations))
     elif state["page"] == 2:
         with ui.row().classes("w-full"):
             search_component(on_booked=render_content.refresh)
@@ -198,6 +198,7 @@ def render_filter():
         print(f"\nCurrent Parameters: {current_parameters}")
         current_filter_reservations = _get_reservations(current_parameters)
         print(f"\nfilter reservations: {current_filter_reservations}")
+        render_content.refresh()
 
     all_reservations = _get_reservations()
     # print(f"Current parameters: {list(current_parameters.items())}")
