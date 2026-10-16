@@ -21,7 +21,7 @@ from nicegui import ui
 API_BASE = "http://localhost:8004"
 
 # global state for "which room is selected"
-state = {"room_id": None}
+state = {"room_id": None, "announcements": []}
 
 
 def api_get(path: str):
@@ -71,6 +71,8 @@ def main_page():
     rooms = api_get("/rooms")
     if rooms and state["room_id"] is None:
         state["room_id"] = rooms[0]["id"]
+
+    state["announcements"] = api_get("/announcements")
 
     with ui.row().classes("w-full no-wrap"):
         with ui.column().classes("w-1/4 p-2"):
@@ -152,21 +154,14 @@ def render_announcements():
     by the expansion menu because that renders before the insertion. Should
     get fixed...
     """
-    def _num_list_children() -> int:
-        return len(announcement_list.default_slot.children)
-
-    def _update_expansion_menu():
-        expansion.text = f"Announcements ({_num_list_children()} unread)"
-        if not announcement_list.default_slot.children:
-            expansion.value = False  # close expansion menu
+    def _num_announcements() -> int:
+        return len(state["announcements"])
 
     def _create_announcement_item(announcement: dict):
         """
         Create announcement item for the announcements list
         """
-        with ui.item() as announcement_item:
-            announcement_item.on_click(
-                lambda i=announcement_item: _remove_item(i))
+        with ui.item(on_click=lambda a=announcement: _remove_announcement(a)):
             with ui.item_section().props('avatar'):
                 ui.icon('mail')
             with ui.item_section():
@@ -177,16 +172,13 @@ def render_announcements():
                 ui.item_label(announcement["posted_datetime"].strftime(
                     "%x")).props('caption')
 
-    def _remove_item(item):
-        item.delete()
-        _update_expansion_menu()
-        if _num_list_children() <= 0:
-            _render_no_messages_label()
+    def _remove_announcement(announcement: dict):
+        state["announcements"].remove(announcement)
+        render_content.refresh()
 
     def _clear_list():
-        announcement_list.clear()
-        _update_expansion_menu()
-        _render_no_messages_label()
+        state["announcements"].clear()
+        render_content.refresh()
 
     def _render_no_messages_label():
         with announcement_list:
@@ -194,7 +186,7 @@ def render_announcements():
                 ui.label("No new announcements...")
 
     # Sort announcements from newest to oldest before listing
-    announcements = api_get("/announcements")
+    announcements = state['announcements']
     for a in announcements:
         a["posted_datetime"] = datetime.strptime(
             a["posted"], "%Y-%m-%dT%H:%M:%S")
@@ -203,13 +195,14 @@ def render_announcements():
     # Render announcements card
     with ui.card().classes('w-full'):
         with ui.row().classes("w-full items-center").props('bordered'):
-            with ui.expansion(f"Announcements", value=True).classes('w-full text-lg') as expansion:
+            with ui.expansion(f"Announcements ({_num_announcements()} unread)", value=_num_announcements() > 0).classes('w-full text-lg') as expansion:
                 with ui.scroll_area().classes('border border-gray-300 rounded min-h-[200px]') as scroll:
                     with ui.list().props('separator').classes('w-full') as announcement_list:
                         for announcement in announcements:
                             _create_announcement_item(announcement)
+                        if (_num_announcements() == 0):
+                            _render_no_messages_label()
 
-                _update_expansion_menu()
             ui.button("Clear All", on_click=lambda: _clear_list())
 
 
