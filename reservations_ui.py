@@ -231,10 +231,8 @@ def render_filter():
         # """
 
     def _update_filter_output(param: str, values: list[str]):
-        # print(f"Param: '{param}'\nValues: {list(values)}")
         # check to make sure values are not None
         state["current_parameters"][param] = [v for v in values if v]
-        # print(f"\nCurrent Parameters: {state["current_parameters"]}")
         current_filter_reservations = _get_reservations(
             state["current_parameters"])
         state["current_filter_reservations"] = current_filter_reservations
@@ -245,10 +243,6 @@ def render_filter():
         state["current_parameters"])
 
     current_params = state["current_parameters"]
-
-    # print(f"Current parameters: {list(current_parameters.items())}")
-    # print(f"Current reservations: {
-    #       list(_get_reservations(current_parameters))}")
 
     with ui.card():
         ui.label("Filter")
@@ -276,19 +270,6 @@ def render_filter():
                     "building", e.value),
                 clearable=True, multiple=True,
                 value=current_params["building"])
-
-        # with ui.row(align_items="center"):
-        #     ui.label("User:")
-        #     ui.select(sorted([r["reserved_by"] for r in all_reservations]))
-
-        # for r in _get_reservations():
-        #     with ui.row().classes("items-center"):
-        #         ui.label(
-        #             f'{r["room_name"]} ({r["building"]}) - {r["date"]} {r["slot"]}')
-        #         ui.button(
-        #             "Cancel",
-        #             on_click=lambda rid=r["id"]: cancel_reservation(rid),
-        #         )
 
 
 ui.run(port=8083, title="Mock Room Reservations")
