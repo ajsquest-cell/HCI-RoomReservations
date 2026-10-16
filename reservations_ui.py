@@ -14,12 +14,13 @@ Run with:
 Then http://localhost:8083 will open automatically
 """
 
-from search_component import search_component
 
-import requests
+from datetime import datetime
 from nicegui import ui
+import requests
 
 from calendar_view import calendar_view
+from search_component import search_component
 
 API_BASE = "http://localhost:8004"
 
@@ -36,6 +37,7 @@ state = {
         "building": [],
         # TODO
     },
+    "announcements": [],
 }
 
 
@@ -99,13 +101,14 @@ def main_page():
     if rooms and state["room_id"] is None:
         state["room_id"] = rooms[0]["id"]
 
+    state["announcements"] = api_get("/announcements")
+
     with ui.column().classes("w-3/4 p-4"):
         render_content()
 
 
 @ui.refreshable
 def render_content():
-
     if state["page"] == 1:
         with ui.row().classes("w-full no-wrap"):
             render_filter()
@@ -149,15 +152,6 @@ def render_my_reservations():
                 "Cancel",
                 on_click=lambda rid=r["id"]: cancel_reservation(rid),
             )
-
-
-def render_announcements():
-    ui.label("Announcements").classes("text-lg")
-    announcements = api_get("/announcements")
-    for a in announcements:
-        ui.label(a["title"])
-        ui.label(a["body"])
-        ui.separator()
 
 
 def render_filter():
@@ -286,6 +280,69 @@ def render_filter():
         #             "Cancel",
         #             on_click=lambda rid=r["id"]: cancel_reservation(rid),
         #         )
+
+
+def render_announcements():
+    """
+    Render announcement card. Announcements can be clicked to be removed
+    (placeholder for reading/acknowledging an announcement).
+
+    TODO: Does not support announcement insertion at the moment. Currently
+    when there are no announcements left, a new "item" label gets inserted
+    into the list which says there are no items left. This is not counted
+    by the expansion menu because that renders before the insertion. Should
+    get fixed...
+    """
+    def _num_announcements() -> int:
+        return len(state["announcements"])
+
+    def _create_announcement_item(announcement: dict):
+        """
+        Create announcement item for the announcements list
+        """
+        with ui.item(on_click=lambda a=announcement: _remove_announcement(a)):
+            with ui.item_section().props('avatar'):
+                ui.icon('mail')
+            with ui.item_section():
+                ui.item_label(announcement["title"])
+                ui.item_label(
+                    announcement["body"]).props('caption')
+            with ui.item_section().props('side top'):
+                ui.item_label(announcement["posted_datetime"].strftime(
+                    "%x")).props('caption')
+
+    def _remove_announcement(announcement: dict):
+        state["announcements"].remove(announcement)
+        render_content.refresh()
+
+    def _clear_list():
+        state["announcements"].clear()
+        render_content.refresh()
+
+    def _render_no_messages_label():
+        with announcement_list:
+            with ui.card().classes('items-center no-shadow'):
+                ui.label("No new announcements...")
+
+    # Sort announcements from newest to oldest before listing
+    announcements = state['announcements']
+    for a in announcements:
+        a["posted_datetime"] = datetime.strptime(
+            a["posted"], "%Y-%m-%dT%H:%M:%S")
+    announcements.sort(key=lambda item: item["posted_datetime"], reverse=True)
+
+    # Render announcements card
+    with ui.card().classes('w-full'):
+        with ui.row().classes("w-full items-center").props('bordered'):
+            with ui.expansion(f"Announcements ({_num_announcements()} unread)", value=_num_announcements() > 0).classes('w-full text-lg') as expansion:
+                with ui.scroll_area().classes('border border-gray-300 rounded min-h-[200px]') as scroll:
+                    with ui.list().props('separator').classes('w-full') as announcement_list:
+                        for announcement in announcements:
+                            _create_announcement_item(announcement)
+                        if (_num_announcements() == 0):
+                            _render_no_messages_label()
+
+            ui.button("Clear All", on_click=lambda: _clear_list())
 
 
 ui.run(port=8083, title="Mock Room Reservations")
