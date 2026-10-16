@@ -19,10 +19,18 @@ from nicegui import ui
 
 API_BASE = "http://localhost:8004"
 
-# global state for "which room is selected"
-state = {"room_id": None}
-# global filtered reservations list
-current_filter_reservations = []
+# global state
+state = {
+    "room_id": None,
+    "page": 1,
+    "current_filter_reservations": [],
+    "current_parameters": {
+        "reserved_by": [],
+        "room_name": [],
+        "building": [],
+        # TODO
+    },
+}
 
 
 def api_get(path: str):
@@ -69,6 +77,7 @@ def select_room(room_id: int):
 
 @ui.page("/")
 def main_page():
+
     rooms = api_get("/rooms")
     if rooms and state["room_id"] is None:
         state["room_id"] = rooms[0]["id"]
@@ -155,15 +164,8 @@ def render_announcements():
 
 
 def render_filter():
-    global current_filter_reservations
-    current_parameters = {
-        "reserved_by": [],
-        "room_name": [],
-        "building": [],
-        # TODO
-    }
+    global state
 
-    # Filter needs to collect a set of reservations to give to calendar view
     def _get_reservations(parameters: dict = None):
         all_reservations = api_get("/all-reservations")
         if not parameters:
@@ -185,8 +187,8 @@ def render_filter():
             for val in vals:
                 r_meets_requirement = [
                     r for r in all_reservations if r[param] == val]
-                print("\nALL RESERVATIONS THAT MEET REQUIREMENT:" +
-                      f"{param} == {val}: {r_meets_requirement}")
+                # print("\nALL RESERVATIONS THAT MEET REQUIREMENT:" +
+                #       f"{param} == {val}: {r_meets_requirement}")
                 # don't add duplicate reservations if reservations fulfill multiple filters.
                 for r in r_meets_requirement:
                     if r not in reservations:
@@ -208,17 +210,25 @@ def render_filter():
         """
 
     def _update_filter_output(param: str, values: list[str]):
-        print(values)
+        # print(values)
         # check to make sure values are not None
-        current_parameters[param] = [v for v in values if v]
-        print(f"\nCurrent Parameters: {current_parameters}")
-        current_filter_reservations = _get_reservations(current_parameters)
-        print(f"\nfilter reservations: {current_filter_reservations}")
+        state["current_parameters"][param] = [v for v in values if v]
+        # print(f"\nCurrent Parameters: {state["current_parameters"]}")
+        current_filter_reservations = _get_reservations(
+            state["current_parameters"])
+        # print(f"\nfilter reservations: {current_filter_reservations}")
+        state["current_filter_reservations"] = current_filter_reservations
+        render_content.refresh()
 
     all_reservations = _get_reservations()
+    state["current_filter_reservations"] = _get_reservations(
+        state["current_parameters"])
+
     # print(f"Current parameters: {list(current_parameters.items())}")
     # print(f"Current reservations: {
     #       list(_get_reservations(current_parameters))}")
+
+    current_params = state["current_parameters"]
 
     with ui.card():
         ui.label("Filter")
@@ -228,21 +238,24 @@ def render_filter():
                 set([r["reserved_by"] for r in all_reservations])),
                 on_change=lambda e: _update_filter_output(
                     "reserved_by", e.value),
-                clearable=True, multiple=True)
+                clearable=True, multiple=True,
+                value=current_params["reserved_by"])
         with ui.row(align_items="center"):
             ui.label("Room:")
             ui.select(sorted(
                 set([r["room_name"] for r in all_reservations])),
                 on_change=lambda e: _update_filter_output(
                     "room_name", e.value),
-                clearable=True, multiple=True)
+                clearable=True, multiple=True,
+                value=current_params["room_name"])
         with ui.row(align_items="center"):
             ui.label("Building:")
             ui.select(sorted(
                 set([r["building"] for r in all_reservations])),
                 on_change=lambda e: _update_filter_output(
                     "building", e.value),
-                clearable=True, multiple=True)
+                clearable=True, multiple=True,
+                value=current_params["building"])
 
         # with ui.row(align_items="center"):
         #     ui.label("User:")
