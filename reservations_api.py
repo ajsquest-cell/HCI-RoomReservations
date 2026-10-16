@@ -23,6 +23,7 @@ Endpoints:
 """
 
 from datetime import datetime
+from enum import StrEnum
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -36,6 +37,50 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+class UserName(StrEnum):
+    YOU = "you"
+    DOLLY_PARTON = "Dolly Parton"
+
+
+class BuildingName(StrEnum):
+    LIBRARY = "Library"
+    STUDENT_UNION = "Student Union"
+    ARTS_BUILDING = "Arts Building"
+
+
+class RoomName(StrEnum):
+    STUDY_ROOM_204 = "Study Room 204"
+    STUDY_ROOM_210 = "Study Room 210"
+    CONFERENCE_ROOM_A = "Conference Room A"
+    MEDIA_LAB_1 = "Media Lab 1"
+    GROUP_STUDY_POD_C = "Group Study Pod C"
+
+
+class RoomType(StrEnum):
+    STUDY = "study"
+    CONFERENCE = "conference"
+    LAB = "lab"
+
+
+class EquipmentType(StrEnum):
+    NONE = "none"
+
+    PROJECTOR = "projector"
+    EDITING_WORKSTATIONS = "editing workstations"
+    WHITEBOARD = "whiteboard"
+    TV = "TV"
+    VIDEO_CONFERENCING = "video conferencing"
+
+
+SEARCHABLE_CONTEXTS: list[StrEnum] = [
+    UserName,
+    BuildingName,
+    RoomName,
+    RoomType,
+    EquipmentType,
+]
 
 NOW = datetime(2026, 8, 23, 9, 0, 0)
 TODAY = NOW.date().isoformat()
@@ -51,33 +96,40 @@ SLOTS = [
 # ---------------------------------------------------------------------
 
 ROOMS = [
-    {"id": 1, "name": "Study Room 204", "building": "Library", "capacity": 4, "type": "study", "equipment": "whiteboard"},
-    {"id": 2, "name": "Study Room 210", "building": "Library", "capacity": 6, "type": "study", "equipment": "whiteboard, TV"},
-    {"id": 3, "name": "Conference Room A", "building": "Student Union", "capacity": 12, "type": "conference", "equipment": "projector, video conferencing"},
-    {"id": 4, "name": "Media Lab 1", "building": "Arts Building", "capacity": 8, "type": "lab", "equipment": "editing workstations"},
-    {"id": 5, "name": "Group Study Pod C", "building": "Library", "capacity": 2, "type": "study", "equipment": "none"},
+    {"id": 1, "name": RoomName.STUDY_ROOM_204, "building": BuildingName.LIBRARY,
+        "capacity": 4, "type": RoomType.STUDY, "equipment": f"{EquipmentType.WHITEBOARD}"},
+    {"id": 2, "name": RoomName.STUDY_ROOM_210, "building": BuildingName.LIBRARY,
+        "capacity": 6, "type": RoomType.STUDY, "equipment": f"{EquipmentType.WHITEBOARD}, {EquipmentType.TV}"},
+    {"id": 3, "name": RoomName.CONFERENCE_ROOM_A, "building": BuildingName.STUDENT_UNION, "capacity": 12,
+        "type": RoomType.CONFERENCE, "equipment": f"{EquipmentType.PROJECTOR}, {EquipmentType.VIDEO_CONFERENCING}"},
+    {"id": 4, "name": RoomName.MEDIA_LAB_1, "building": BuildingName.ARTS_BUILDING,
+        "capacity": 8, "type": RoomType.LAB, "equipment": f"{EquipmentType.EDITING_WORKSTATIONS}"},
+    {"id": 5, "name": RoomName.GROUP_STUDY_POD_C, "building": BuildingName.LIBRARY,
+        "capacity": 2, "type": RoomType.STUDY, "equipment": f"{EquipmentType.NONE}"},
 ]
 
 # Reservations for the (single, demo) logged-in user and everyone else,
 # all mixed together in one list -- this mock has no real auth.
 RESERVATIONS = [
-    {"id": 1, "room_id": 1, "date": TODAY, "slot": "10:00-11:00", "reserved_by": "you"},
-    {"id": 2, "room_id": 3, "date": TODAY, "slot": "13:00-14:00", "reserved_by": "Dolly Parton"},
+    {"id": 1, "room_id": 1, "date": TODAY,
+        "slot": "10:00-11:00", "reserved_by": UserName.YOU},
+    {"id": 2, "room_id": 3, "date": TODAY,
+        "slot": "13:00-14:00", "reserved_by": UserName.DOLLY_PARTON},
 ]
 _next_reservation_id = 3
 
 ANNOUNCEMENTS = [
     {
         "id": 1,
-        "title": "Media Lab 1 closed for equipment upgrades",
+        "title": f"{RoomName.MEDIA_LAB_1} closed for equipment upgrades",
         "posted": "2026-08-21T10:00:00",
-        "body": "Media Lab 1 will be unavailable for booking next Tuesday while new editing workstations are installed.",
+        "body": f"{RoomName.MEDIA_LAB_1} will be unavailable for booking next Tuesday while new editing workstations are installed.",
     },
     {
         "id": 2,
         "title": "New group study pods added",
         "posted": "2026-08-18T10:00:00",
-        "body": "Three new two-person study pods are now bookable on the library's second floor, including Group Study Pod C.",
+        "body": f"Three new two-person study pods are now bookable on the library's second floor, including {RoomName.GROUP_STUDY_POD_C}.",
     },
 ]
 
@@ -140,7 +192,8 @@ def get_my_reservations():
     enriched = []
     for r in mine:
         room = _get_room_or_404(r["room_id"])
-        enriched.append({**r, "room_name": room["name"], "building": room["building"]})
+        enriched.append(
+            {**r, "room_name": room["name"], "building": room["building"]})
     return enriched
 
 
@@ -156,7 +209,8 @@ def book_reservation(req: BookRequest):
     if req.slot not in SLOTS:
         raise HTTPException(status_code=400, detail="Not a valid time slot")
     if _slot_reservation(req.room_id, req.slot):
-        raise HTTPException(status_code=400, detail="That slot is already reserved")
+        raise HTTPException(
+            status_code=400, detail="That slot is already reserved")
 
     new_reservation = {
         "id": _next_reservation_id,
@@ -179,7 +233,29 @@ def cancel_reservation(req: CancelRequest):
     raise HTTPException(status_code=404, detail="Reservation not found")
 
 
+@app.get("/searchables")
+def list_searchables():
+    """
+    We're going to have this be a client-side thing I think to reduce network
+    calls. Initially, we will grab all of the names from the api. Then we'll have
+    them to work with.
+
+    TODO: Might be bad practice, unsure - need input here.
+    """
+    all_contexts = []
+    for context in SEARCHABLE_CONTEXTS:
+        all_contexts.append({"context": context.__name__, "searchables": [
+                            item.value for item in context]})
+    return all_contexts
+
+
 if __name__ == "__main__":
     import uvicorn
+
+    # print("All searchable contexts detected:")
+    # for context in SEARCHABLE_CONTEXTS:
+    #     print(f"\t{context.__name__}:")
+    #     for item in context:
+    #         print(f"\t\t- {item.value}")
 
     uvicorn.run(app, port=8004)

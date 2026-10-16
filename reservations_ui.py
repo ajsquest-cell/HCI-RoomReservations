@@ -17,10 +17,17 @@ Then http://localhost:8083 will open automatically
 import requests
 from nicegui import ui
 
-API_BASE = "http://localhost:8004"
+from search_suggestions import search_suggestions
+
+
+CLIENT_PORT = 8003
+API_BASE_PORT = 8004
+
+API_BASE = f"http://localhost:{API_BASE_PORT}"
 
 # global state for "which room is selected"
 state = {"room_id": None}
+
 
 def api_get(path: str):
     try:
@@ -30,6 +37,7 @@ def api_get(path: str):
     except requests.RequestException as e:
         ui.notify(f"Could not reach API: {e}", type="negative")
         return []
+
 
 def api_post(path: str, json: dict):
     try:
@@ -45,19 +53,23 @@ def api_post(path: str, json: dict):
         ui.notify(detail or f"Request failed: {e}", type="negative")
         return False
 
+
 def book_slot(room_id: int, slot: str):
     if api_post("/reservations/book", {"room_id": room_id, "slot": slot}):
         ui.notify("Room booked", type="positive")
         render_content.refresh()
+
 
 def cancel_reservation(reservation_id: int):
     if api_post("/reservations/cancel", {"reservation_id": reservation_id}):
         ui.notify("Reservation cancelled", type="warning")
         render_content.refresh()
 
+
 def select_room(room_id: int):
     state["room_id"] = room_id
     render_content.refresh()
+
 
 @ui.page("/")
 def main_page():
@@ -75,6 +87,7 @@ def main_page():
 
         with ui.column().classes("w-3/4 p-4"):
             render_content()
+
 
 @ui.refreshable
 def render_content():
@@ -101,18 +114,25 @@ def render_content():
             if s["status"] == "available":
                 ui.button(
                     "Book",
-                    on_click=lambda room_id=room_id, slot=s["slot"]: book_slot(room_id, slot),
+                    on_click=lambda room_id=room_id, slot=s["slot"]: book_slot(
+                        room_id, slot),
                 )
             elif s["reserved_by"] == "you":
                 ui.button(
                     "Cancel",
-                    on_click=lambda rid=s["reservation_id"]: cancel_reservation(rid),
+                    on_click=lambda rid=s["reservation_id"]: cancel_reservation(
+                        rid),
                 )
 
     ui.separator()
     render_my_reservations()
     ui.separator()
     render_announcements()
+
+    # # Example search usage
+    # ui.separator()
+    # render_test_search_bar()
+
 
 def render_my_reservations():
     ui.label("My Reservations").classes("text-lg")
@@ -122,11 +142,13 @@ def render_my_reservations():
         return
     for r in reservations:
         with ui.row().classes("items-center"):
-            ui.label(f'{r["room_name"]} ({r["building"]}) - {r["date"]} {r["slot"]}')
+            ui.label(
+                f'{r["room_name"]} ({r["building"]}) - {r["date"]} {r["slot"]}')
             ui.button(
                 "Cancel",
                 on_click=lambda rid=r["id"]: cancel_reservation(rid),
             )
+
 
 def render_announcements():
     ui.label("Announcements").classes("text-lg")
@@ -135,5 +157,24 @@ def render_announcements():
         ui.label(a["title"])
         ui.label(a["body"])
         ui.separator()
+
+
+def render_test_search_bar():
+    ui.label("UserName Search")
+    searchables = api_get("/searchables")
+    i = ui.input(label='Text', placeholder='start typing',
+                 on_change=lambda e: i.set_autocomplete(
+                     update_suggestions(searchables, e.value)))
+    pass
+
+
+def update_suggestions(searchables: list[dict], current_input: str) -> list[str]:
+    suggestions = []
+    for context in searchables:
+        if context["context"] == "UserName":
+            suggestions = search_suggestions(context, current_input)
+            break
+    return suggestions
+
 
 ui.run(port=8083, title="Mock Room Reservations")
