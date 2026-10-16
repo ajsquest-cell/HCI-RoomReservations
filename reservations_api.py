@@ -16,6 +16,7 @@ Endpoints:
     GET  /rooms
     GET  /rooms/{room_id}
     GET  /rooms/{room_id}/slots
+    GET  /all-reservations
     GET  /my-reservations
     POST /reservations/book     body: {"room_id": int, "slot": str}
     POST /reservations/cancel   body: {"reservation_id": int}
@@ -57,18 +58,25 @@ SLOTS = [
 # ---------------------------------------------------------------------
 
 ROOMS = [
-    {"id": 1, "name": "Study Room 204", "building": "Library", "capacity": 4, "type": "study", "equipment": "whiteboard"},
-    {"id": 2, "name": "Study Room 210", "building": "Library", "capacity": 6, "type": "study", "equipment": "whiteboard, TV"},
-    {"id": 3, "name": "Conference Room A", "building": "Student Union", "capacity": 12, "type": "conference", "equipment": "projector, video conferencing"},
-    {"id": 4, "name": "Media Lab 1", "building": "Arts Building", "capacity": 8, "type": "lab", "equipment": "editing workstations"},
-    {"id": 5, "name": "Group Study Pod C", "building": "Library", "capacity": 2, "type": "study", "equipment": "none"},
+    {"id": 1, "name": "Study Room 204", "building": "Library",
+        "capacity": 4, "type": "study", "equipment": "whiteboard"},
+    {"id": 2, "name": "Study Room 210", "building": "Library",
+        "capacity": 6, "type": "study", "equipment": "whiteboard, TV"},
+    {"id": 3, "name": "Conference Room A", "building": "Student Union", "capacity": 12,
+        "type": "conference", "equipment": "projector, video conferencing"},
+    {"id": 4, "name": "Media Lab 1", "building": "Arts Building",
+        "capacity": 8, "type": "lab", "equipment": "editing workstations"},
+    {"id": 5, "name": "Group Study Pod C", "building": "Library",
+        "capacity": 2, "type": "study", "equipment": "none"},
 ]
 
 # Reservations for the (single, demo) logged-in user and everyone else,
 # all mixed together in one list -- this mock has no real auth.
 RESERVATIONS = [
-    {"id": 1, "room_id": 1, "date": TODAY, "slot": "10:00-11:00", "reserved_by": "you"},
-    {"id": 2, "room_id": 3, "date": TODAY, "slot": "13:00-14:00", "reserved_by": "Dolly Parton"},
+    {"id": 1, "room_id": 1, "date": TODAY,
+        "slot": "10:00-11:00", "reserved_by": "you"},
+    {"id": 2, "room_id": 3, "date": TODAY,
+        "slot": "13:00-14:00", "reserved_by": "Dolly Parton"},
 ]
 _next_reservation_id = 3
 
@@ -124,6 +132,18 @@ def _slots_in_range(start: int, end: int):
 
 # GET
 
+def _enrich_reservations(reservations: list(dict)) -> list(dict):
+    """
+    Helper function to append room information onto given reservation items.
+    """
+    enriched = []
+    for r in reservations:
+        room = _get_room_or_404(r["room_id"])
+        enriched.append(
+            {**r, "room_name": room["name"], "building": room["building"]})
+    return enriched
+
+
 @app.get("/rooms")
 def list_rooms():
     return ROOMS
@@ -149,14 +169,15 @@ def get_room_slots(room_id: int):
     return result
 
 
+@app.get("/all-reservations")
+def get_all_reservations():
+    return _enrich_reservations(RESERVATIONS)
+
+
 @app.get("/my-reservations")
 def get_my_reservations():
     mine = [r for r in RESERVATIONS if r["reserved_by"] == "you"]
-    enriched = []
-    for r in mine:
-        room = _get_room_or_404(r["room_id"])
-        enriched.append({**r, "room_name": room["name"], "building": room["building"]})
-    return enriched
+    return _enrich_reservations(mine)
 
 
 @app.get("/announcements")
@@ -219,7 +240,8 @@ def book_reservation(req: BookRequest):
     if req.slot not in SLOTS:
         raise HTTPException(status_code=400, detail="Not a valid time slot")
     if _slot_reservation(req.room_id, req.slot):
-        raise HTTPException(status_code=400, detail="That slot is already reserved")
+        raise HTTPException(
+            status_code=400, detail="That slot is already reserved")
 
     new_reservation = {
         "id": _next_reservation_id,
