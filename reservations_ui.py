@@ -177,7 +177,7 @@ def render_filter():
         if not has_params:
             return all_reservations
 
-        # """
+        """
         # Create list of reservations based on parameters (||)
         reservations = []
         for param, vals in parameters.items():
@@ -191,32 +191,49 @@ def render_filter():
                     if r not in reservations:
                         reservations.append(r)
         return reservations
-        # """
-
         """
+
+        # """
         # Create list of reservations based on parameters (&&)
-        separate_filtered_reservations: list(list(dict)) = []
+        separate_filtered_reservations: list[list[dict]] = []
         for param, vals in parameters.items():
+            if len(vals) == 0:
+                continue
+            r_meets_requirement = []
             for val in vals:
-                parameter_reservations = [
-                    r for r in all_reservations if r[param]]
-            separate_filtered_reservations.append(
-                [r for r in parameter_reservations])
+                r_meets_requirement.extend(
+                    [r for r in all_reservations if r[param] == val])
+                # print(f"\tMeets requirements: {list(r_meets_requirement)}")
+            separate_filtered_reservations.append(r_meets_requirement)
+
+        # print(f"\tall lists of reservations that meet requirements {
+        #       separate_filtered_reservations}")
+
         final_reservations = []
         for i, reservations in enumerate(separate_filtered_reservations):
             if i == 0:
-                final_reservations.append()
-        """
+                # print(f"\n\tfirst list: {
+                #       list(reservations)} getting added to final reservations")
+                final_reservations = reservations
+                continue
+
+            # print(f"\n\tlist {i}: {list(reservations)} getting combined with final list {
+            #       list(final_reservations)}")
+            final_reservations = [
+                r for r in final_reservations if r in reservations]
+            # print(f"\n\tfinal list state: {list(final_reservations)}")
+
+        # print(f"\tfinal reservations: {final_reservations}")
+        return final_reservations
+        # """
 
     def _update_filter_output(param: str, values: list[str]):
-
-        # print(values)
+        # print(f"Param: '{param}'\nValues: {list(values)}")
         # check to make sure values are not None
         state["current_parameters"][param] = [v for v in values if v]
         # print(f"\nCurrent Parameters: {state["current_parameters"]}")
         current_filter_reservations = _get_reservations(
             state["current_parameters"])
-        # print(f"\nfilter reservations: {current_filter_reservations}")
         state["current_filter_reservations"] = current_filter_reservations
         render_content.refresh()
 
@@ -224,11 +241,11 @@ def render_filter():
     state["current_filter_reservations"] = _get_reservations(
         state["current_parameters"])
 
+    current_params = state["current_parameters"]
+
     # print(f"Current parameters: {list(current_parameters.items())}")
     # print(f"Current reservations: {
     #       list(_get_reservations(current_parameters))}")
-
-    current_params = state["current_parameters"]
 
     with ui.card():
         ui.label("Filter")
