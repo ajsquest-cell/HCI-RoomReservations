@@ -14,6 +14,7 @@ Run with:
 Then http://localhost:8083 will open automatically
 """
 
+from datetime import datetime
 import requests
 from nicegui import ui
 
@@ -21,6 +22,7 @@ API_BASE = "http://localhost:8004"
 
 # global state for "which room is selected"
 state = {"room_id": None}
+
 
 def api_get(path: str):
     try:
@@ -30,6 +32,7 @@ def api_get(path: str):
     except requests.RequestException as e:
         ui.notify(f"Could not reach API: {e}", type="negative")
         return []
+
 
 def api_post(path: str, json: dict):
     try:
@@ -45,19 +48,23 @@ def api_post(path: str, json: dict):
         ui.notify(detail or f"Request failed: {e}", type="negative")
         return False
 
+
 def book_slot(room_id: int, slot: str):
     if api_post("/reservations/book", {"room_id": room_id, "slot": slot}):
         ui.notify("Room booked", type="positive")
         render_content.refresh()
+
 
 def cancel_reservation(reservation_id: int):
     if api_post("/reservations/cancel", {"reservation_id": reservation_id}):
         ui.notify("Reservation cancelled", type="warning")
         render_content.refresh()
 
+
 def select_room(room_id: int):
     state["room_id"] = room_id
     render_content.refresh()
+
 
 @ui.page("/")
 def main_page():
@@ -75,6 +82,7 @@ def main_page():
 
         with ui.column().classes("w-3/4 p-4"):
             render_content()
+
 
 @ui.refreshable
 def render_content():
@@ -101,18 +109,21 @@ def render_content():
             if s["status"] == "available":
                 ui.button(
                     "Book",
-                    on_click=lambda room_id=room_id, slot=s["slot"]: book_slot(room_id, slot),
+                    on_click=lambda room_id=room_id, slot=s["slot"]: book_slot(
+                        room_id, slot),
                 )
             elif s["reserved_by"] == "you":
                 ui.button(
                     "Cancel",
-                    on_click=lambda rid=s["reservation_id"]: cancel_reservation(rid),
+                    on_click=lambda rid=s["reservation_id"]: cancel_reservation(
+                        rid),
                 )
 
     ui.separator()
     render_my_reservations()
     ui.separator()
     render_announcements()
+
 
 def render_my_reservations():
     ui.label("My Reservations").classes("text-lg")
@@ -122,18 +133,84 @@ def render_my_reservations():
         return
     for r in reservations:
         with ui.row().classes("items-center"):
-            ui.label(f'{r["room_name"]} ({r["building"]}) - {r["date"]} {r["slot"]}')
+            ui.label(
+                f'{r["room_name"]} ({r["building"]}) - {r["date"]} {r["slot"]}')
             ui.button(
                 "Cancel",
                 on_click=lambda rid=r["id"]: cancel_reservation(rid),
             )
 
+
 def render_announcements():
-    ui.label("Announcements").classes("text-lg")
+    """
+    Render announcement card. Announcements can be clicked to be removed
+    (placeholder for reading/acknowledging an announcement).
+
+    TODO: Does not support announcement insertion at the moment. Currently
+    when there are no announcements left, a new "item" label gets inserted
+    into the list which says there are no items left. This is not counted
+    by the expansion menu because that renders before the insertion. Should
+    get fixed...
+    """
+    def _num_list_children() -> int:
+        return len(announcement_list.default_slot.children)
+
+    def _update_expansion_menu():
+        expansion.text = f"Announcements ({_num_list_children()} unread)"
+        if not announcement_list.default_slot.children:
+            expansion.value = False  # close expansion menu
+
+    def _create_announcement_item(announcement: dict):
+        """
+        Create announcement item for the announcements list
+        """
+        with ui.item() as announcement_item:
+            announcement_item.on_click(
+                lambda i=announcement_item: _remove_item(i))
+            with ui.item_section().props('avatar'):
+                ui.icon('mail')
+            with ui.item_section():
+                ui.item_label(announcement["title"])
+                ui.item_label(
+                    announcement["body"]).props('caption')
+            with ui.item_section().props('side top'):
+                ui.item_label(announcement["posted_datetime"].strftime(
+                    "%x")).props('caption')
+
+    def _remove_item(item):
+        item.delete()
+        _update_expansion_menu()
+        if _num_list_children() <= 0:
+            _render_no_messages_label()
+
+    def _clear_list():
+        announcement_list.clear()
+        _update_expansion_menu()
+        _render_no_messages_label()
+
+    def _render_no_messages_label():
+        with announcement_list:
+            with ui.card().classes('items-center no-shadow'):
+                ui.label("No new announcements...")
+
+    # Sort announcements from newest to oldest before listing
     announcements = api_get("/announcements")
     for a in announcements:
-        ui.label(a["title"])
-        ui.label(a["body"])
-        ui.separator()
+        a["posted_datetime"] = datetime.strptime(
+            a["posted"], "%Y-%m-%dT%H:%M:%S")
+    announcements.sort(key=lambda item: item["posted_datetime"], reverse=True)
+
+    # Render announcements card
+    with ui.card().classes('w-full'):
+        with ui.row().classes("w-full items-center").props('bordered'):
+            with ui.expansion(f"Announcements", value=True).classes('w-full text-lg') as expansion:
+                with ui.scroll_area().classes('border border-gray-300 rounded min-h-[200px]') as scroll:
+                    with ui.list().props('separator').classes('w-full') as announcement_list:
+                        for announcement in announcements:
+                            _create_announcement_item(announcement)
+
+                _update_expansion_menu()
+            ui.button("Clear All", on_click=lambda: _clear_list())
+
 
 ui.run(port=8083, title="Mock Room Reservations")
