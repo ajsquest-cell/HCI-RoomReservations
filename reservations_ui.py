@@ -14,6 +14,10 @@ Run with:
 Then http://localhost:8083 will open automatically
 """
 
+from ast import Lambda
+
+from search_component import search_component
+
 import requests
 from nicegui import ui
 
@@ -64,6 +68,8 @@ def main_page():
     rooms = api_get("/rooms")
     if rooms and state["room_id"] is None:
         state["room_id"] = rooms[0]["id"]
+
+    search_component(on_booked=render_content.refresh)
 
     with ui.row().classes("w-full no-wrap"):
         with ui.column().classes("w-1/4 p-2"):

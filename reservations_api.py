@@ -178,7 +178,7 @@ def list_buildings():
 
 # Get available rooms by time slots
 @app.get("/availability/by-time")
-def get_rooms_by_time(start: int, end: int):
+def get_rooms_by_time(start: int, end: int, min_capacity: int = 0):
     if (start >= end):
         raise HTTPException(status_code=400, detail="Invalid time range")
     # get time range
@@ -188,23 +188,27 @@ def get_rooms_by_time(start: int, end: int):
     available_rooms = []
     # find available rooms
     for room in ROOMS:
-        if all(slot in _open_slots(room["id"]) for slot in slots):
+        if room["capacity"] < min_capacity:
+            continue
+        open_slots = _open_slots(room["id"])
+        if any(slot in open_slots for slot in slots):
             available_rooms.append(room)
     return available_rooms
 
 # Get avalability by building
 @app.get("/availability/by-building")
-def get_rooms_by_building(building: str):
+def get_rooms_by_building(building: str, min_capacity: int = 0):
     if building not in {room["building"] for room in ROOMS}:
         raise HTTPException(status_code=400, detail=f"Invalid building: {building}")
 
-    return [r for r in ROOMS if r["building"] == building and _open_slots(r["id"])]
+    return [r for r in ROOMS if r["building"] == building and r["capacity"] >= min_capacity and _open_slots(r["id"])]
 
 # Get avalability by room
 @app.get("/availability/by-room")
-def get_rooms_by_room(room_id: int):
+def get_rooms_by_room(room_id: int, start: int = 9, end: int = 17):
     _get_room_or_404(room_id)
-    return _open_slots(room_id)
+    slots_in_range = _slots_in_range(start, end)
+    return [slot for slot in slots_in_range if slot in _open_slots(room_id)]
 
 # POST
 
