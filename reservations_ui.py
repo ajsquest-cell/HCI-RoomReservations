@@ -86,6 +86,10 @@ def main_page():
 
 @ui.refreshable
 def render_content():
+
+    render_announcements()
+    ui.separator()
+
     room_id = state["room_id"]
     if room_id is None:
         ui.label("No room selected")
@@ -121,8 +125,8 @@ def render_content():
 
     ui.separator()
     render_my_reservations()
-    ui.separator()
-    render_announcements()
+    # ui.separator()
+    # render_announcements()
 
 
 def render_my_reservations():
@@ -150,21 +154,35 @@ def render_announcements():
             a["posted"], "%Y-%m-%dT%H:%M:%S")
     announcements.sort(key=lambda item: item["posted_datetime"], reverse=True)
 
-    with ui.list().props('bordered separator') as announcement_list:
-        with ui.item_label('Announcements').props('header').classes('text-bold text-lg'):
-            ui.button("Clear", on_click=lambda: announcement_list.clear())
-        ui.separator()
+    def _create_announcement_item(announcement: dict):
+        with ui.item() as announcement_item:
+            announcement_item.on_click(
+                lambda i=announcement_item: _remove_announcement_item(i))
+            with ui.item_section().props('avatar'):
+                ui.icon('mail')
+            with ui.item_section():
+                ui.item_label(announcement["title"])
+                ui.item_label(
+                    announcement["body"]).props('caption')
+            with ui.item_section().props('side top'):
+                ui.item_label(announcement["posted_datetime"].strftime(
+                    "%x")).props('caption')
 
-        for announcement in announcements:
-            with ui.item(on_click=lambda a=announcement: ui.notify(f'Selected Announcement {a["id"]}')):
-                with ui.item_section().props('avatar'):
-                    ui.icon('mail')
-                with ui.item_section():
-                    ui.item_label(announcement["title"])
-                    ui.item_label(announcement["body"]).props('caption')
-                with ui.item_section().props('side top'):
-                    ui.item_label(announcement["posted_datetime"].strftime(
-                        "%x")).props('caption')
+    def _remove_announcement_item(announcement_item):
+        # ui.notify(f'Selected Announcement {announcement_item["id"]}')
+        announcement_item.delete()
+
+    # h-[30vh] min-h-[250px]'):  # TODO
+    with ui.card().classes('w-full') as card:
+        with ui.row().classes("items-center w-full").props('bordered'):
+            ui.label('Announcements').props('header').classes('text-lg')
+            ui.space()
+            ui.button("Clear", on_click=lambda: announcement_list.clear())
+
+        with ui.scroll_area() as scroll:
+            with ui.list().props('bordered separator').classes('w-full') as announcement_list:
+                for announcement in announcements:
+                    _create_announcement_item(announcement)
 
 
 ui.run(port=8083, title="Mock Room Reservations")
