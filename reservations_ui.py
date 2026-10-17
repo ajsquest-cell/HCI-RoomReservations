@@ -157,7 +157,7 @@ def render_announcements():
     def _create_announcement_item(announcement: dict):
         with ui.item() as announcement_item:
             announcement_item.on_click(
-                lambda i=announcement_item: _remove_announcement_item(i))
+                lambda i=announcement_item: i.delete())
             with ui.item_section().props('avatar'):
                 ui.icon('mail')
             with ui.item_section():
@@ -168,19 +168,14 @@ def render_announcements():
                 ui.item_label(announcement["posted_datetime"].strftime(
                     "%x")).props('caption')
 
-    def _remove_announcement_item(announcement_item):
-        # ui.notify(f'Selected Announcement {announcement_item["id"]}')
-        announcement_item.delete()
-
-    # h-[30vh] min-h-[250px]'):  # TODO
-    with ui.card().classes('w-full') as card:
+    with ui.card().classes('w-full'):
         with ui.row().classes("items-center w-full").props('bordered'):
             ui.label('Announcements').props('header').classes('text-lg')
             ui.space()
             ui.button("Clear", on_click=lambda: announcement_list.clear())
 
-        with ui.scroll_area() as scroll:
-            with ui.list().props('bordered separator').classes('w-full') as announcement_list:
+        with ui.scroll_area().classes('border border-gray-300 rounded min-h-[200px]') as scroll:
+            with ui.list().props('separator').classes('w-full') as announcement_list:
                 for announcement in announcements:
                     _create_announcement_item(announcement)
 
