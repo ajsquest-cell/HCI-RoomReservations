@@ -86,10 +86,6 @@ def main_page():
 
 @ui.refreshable
 def render_content():
-
-    render_announcements()
-    ui.separator()
-
     room_id = state["room_id"]
     if room_id is None:
         ui.label("No room selected")
@@ -125,8 +121,8 @@ def render_content():
 
     ui.separator()
     render_my_reservations()
-    # ui.separator()
-    # render_announcements()
+    ui.separator()
+    render_announcements()
 
 
 def render_my_reservations():
@@ -146,18 +142,31 @@ def render_my_reservations():
 
 
 def render_announcements():
-    announcements = api_get("/announcements")
+    """
+    Render announcement card. Announcements can be clicked to be removed
+    (placeholder for reading/acknowledging an announcement).
 
-    # Sort announcements from newest to oldest
-    for a in announcements:
-        a["posted_datetime"] = datetime.strptime(
-            a["posted"], "%Y-%m-%dT%H:%M:%S")
-    announcements.sort(key=lambda item: item["posted_datetime"], reverse=True)
+    TODO: Does not support announcement insertion at the moment. Currently
+    when there are no announcements left, a new "item" label gets inserted
+    into the list which says there are no items left. This is not counted
+    by the expansion menu because that renders before the insertion. Should
+    get fixed...
+    """
+    def _num_list_children() -> int:
+        return len(announcement_list.default_slot.children)
+
+    def _update_expansion_menu():
+        expansion.text = f"Announcements ({_num_list_children()} unread)"
+        if not announcement_list.default_slot.children:
+            expansion.value = False  # close expansion menu
 
     def _create_announcement_item(announcement: dict):
+        """
+        Create announcement item for the announcements list
+        """
         with ui.item() as announcement_item:
             announcement_item.on_click(
-                lambda i=announcement_item: i.delete())
+                lambda i=announcement_item: _remove_item(i))
             with ui.item_section().props('avatar'):
                 ui.icon('mail')
             with ui.item_section():
@@ -168,16 +177,40 @@ def render_announcements():
                 ui.item_label(announcement["posted_datetime"].strftime(
                     "%x")).props('caption')
 
-    with ui.card().classes('w-full'):
-        with ui.row().classes("items-center w-full").props('bordered'):
-            ui.label('Announcements').props('header').classes('text-lg')
-            ui.space()
-            ui.button("Clear", on_click=lambda: announcement_list.clear())
+    def _remove_item(item):
+        item.delete()
+        _update_expansion_menu()
+        if _num_list_children() <= 0:
+            _render_no_messages_label()
 
-        with ui.scroll_area().classes('border border-gray-300 rounded min-h-[200px]') as scroll:
-            with ui.list().props('separator').classes('w-full') as announcement_list:
-                for announcement in announcements:
-                    _create_announcement_item(announcement)
+    def _clear_list():
+        announcement_list.clear()
+        _update_expansion_menu()
+        _render_no_messages_label()
+
+    def _render_no_messages_label():
+        with announcement_list:
+            with ui.card().classes('items-center no-shadow'):
+                ui.label("No new announcements...")
+
+    # Sort announcements from newest to oldest before listing
+    announcements = api_get("/announcements")
+    for a in announcements:
+        a["posted_datetime"] = datetime.strptime(
+            a["posted"], "%Y-%m-%dT%H:%M:%S")
+    announcements.sort(key=lambda item: item["posted_datetime"], reverse=True)
+
+    # Render announcements card
+    with ui.card().classes('w-full'):
+        with ui.row().classes("w-full items-center").props('bordered'):
+            with ui.expansion(f"Announcements", value=True).classes('w-full text-lg') as expansion:
+                with ui.scroll_area().classes('border border-gray-300 rounded min-h-[200px]') as scroll:
+                    with ui.list().props('separator').classes('w-full') as announcement_list:
+                        for announcement in announcements:
+                            _create_announcement_item(announcement)
+
+                _update_expansion_menu()
+            ui.button("Clear All", on_click=lambda: _clear_list())
 
 
 ui.run(port=8083, title="Mock Room Reservations")
