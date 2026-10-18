@@ -21,6 +21,8 @@ from search_component import search_component
 import requests
 from nicegui import ui
 
+from calendar_view import calendar_view
+
 API_BASE = "http://localhost:8004"
 
 # global state for "which room is selected"
@@ -84,36 +86,7 @@ def main_page():
 
 @ui.refreshable
 def render_content():
-    room_id = state["room_id"]
-    if room_id is None:
-        ui.label("No room selected")
-        return
-
-    room = api_get(f"/rooms/{room_id}")
-    ui.label(f'{room.get("name", "")}').classes("text-2xl")
-    ui.label(
-        f'{room.get("building", "")} - capacity {room.get("capacity", "")} '
-        f'- {room.get("equipment", "")}'
-    ).classes("text-2xl")
-
-    ui.label("Today's availability").classes("text-lg")
-    slots = api_get(f"/rooms/{room_id}/slots")
-    for s in slots:
-        with ui.row().classes("items-center"):
-            label = f'{s["slot"]} - {s["status"]}'
-            if s["reserved_by"]:
-                label += f' ({s["reserved_by"]})'
-            ui.label(label)
-            if s["status"] == "available":
-                ui.button(
-                    "Book",
-                    on_click=lambda room_id=room_id, slot=s["slot"]: book_slot(room_id, slot),
-                )
-            elif s["reserved_by"] == "you":
-                ui.button(
-                    "Cancel",
-                    on_click=lambda rid=s["reservation_id"]: cancel_reservation(rid),
-                )
+    calendar_view(api_get("/my-reservations"))
 
     ui.separator()
     render_my_reservations()

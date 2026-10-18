@@ -43,7 +43,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-NOW = datetime(2026, 8, 23, 9, 0, 0)
+NOW = datetime(2026, 10, 17, 9, 0, 0)
 TODAY = NOW.date().isoformat()
 
 # Every room offers the same fixed set of one-hour slots today.
