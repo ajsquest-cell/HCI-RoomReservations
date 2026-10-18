@@ -132,7 +132,7 @@ def _slots_in_range(start: int, end: int):
 
 # GET
 
-def _enrich_reservations(reservations: list(dict)) -> list(dict):
+def _enrich_reservations(reservations):
     """
     Helper function to append room information onto given reservation items.
     """

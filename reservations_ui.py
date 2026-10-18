@@ -102,7 +102,7 @@ def render_content():
     if state["page"] == 1:
         with ui.row().classes("w-full no-wrap"):
             render_filter()
-            calendar_view(api_get(current_filter_reservations))
+            calendar_view(current_filter_reservations)
     elif state["page"] == 2:
         with ui.row().classes("w-full"):
             search_component(on_booked=render_content.refresh)
