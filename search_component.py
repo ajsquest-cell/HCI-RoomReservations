@@ -38,7 +38,9 @@ def get_attendance(size):
 def show_results(room, booking, start=9, end=17):
     slots = get("/availability/by-room", room_id=room["id"], start=start, end=end)
     with ui.card():
-        ui.label(room["name"]).classes("text-lg font-bold")
+        ui.label(room["name"]).classes("text-lg font-bold").classes(
+            "text-lg font-bold text-blue-600 underline cursor-pointer"
+        ).on("click", lambda: room_details(room))
         ui.label(f'{room["building"]} - capacity {room["capacity"]}')
 
         if not slots:
@@ -52,6 +54,16 @@ def show_results(room, booking, start=9, end=17):
         if len(slots) > 1:
             ui.button("Book all", on_click=lambda: book_slot(room["id"], slots, booking))
 
+
+# display pop up with room details
+def room_details(room):
+    with ui.dialog() as dialog, ui.card().classes("min-w-80"):
+        ui.label(room["name"]).classes("text-xl font-bold")
+        ui.label(f'Building: {room["building"]}')
+        ui.label(f'Capacity: {room["capacity"]}')
+        ui.label(f'Type: {room["type"].capitalize()}')
+        ui.label(f'Equipment: {room["equipment"]}')
+    dialog.open()
 
 # helper to book slot
 def book_slot(room_id, slots, booking):
@@ -69,9 +81,9 @@ def search_component(on_booked=None):
 def time_search(on_booked):
     # display
     with toggle_selection("Search for available locations by time"):
-        start = ui.select(list(range(9, 17)), label="Start hour")
-        end = ui.select(list(range(10, 18)), label="End hour")
-        attendance = ui.number("Expected attendance (optional)", min=1, precision=0)
+        start = ui.select(list(range(9, 17)), label="Start hour").classes("w-40")
+        end = ui.select(list(range(10, 18)), label="End hour").classes("w-40")
+        attendance = ui.number("Expected attendance (optional)", min=1, precision=0).classes("w-64")
         ui.button("Search", on_click=lambda: display_results())
         results = ui.row().classes("flex-wrap")
 
@@ -100,8 +112,8 @@ def time_search(on_booked):
 def location_search(on_booked):
     # display
     with toggle_selection("Search for available locations by building"):
-        building = ui.select(get("/buildings"), label="Building")
-        attendance = ui.number("Expected attendance (optional)", min=1, precision=0)
+        building = ui.select(get("/buildings"), label="Building").classes("w-64")
+        attendance = ui.number("Expected attendance (optional)", min=1, precision=0).classes("w-64")
         ui.button("Search", on_click=lambda: display_results())
         results = ui.row().classes("flex-wrap")
 
