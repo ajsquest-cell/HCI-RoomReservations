@@ -26,7 +26,7 @@ from calendar_view import calendar_view
 API_BASE = "http://localhost:8004"
 
 # global state for "which room is selected"
-state = {"room_id": None}
+state = {"room_id": None, "page": 1}
 
 def api_get(path: str):
     try:
@@ -65,13 +65,21 @@ def select_room(room_id: int):
     state["room_id"] = room_id
     render_content.refresh()
 
+def set_page(page: int):
+    state["page"] = page
+    render_content.refresh()
+
 @ui.page("/")
 def main_page():
+
+    with ui.row().classes("w-full no-wrap gap-2"):
+        ui.label("Room Reservation System").classes("text-3xl font-bold pr-10")
+        ui.button("Dashboard", on_click=lambda: set_page(1)).classes("rounded-lg")
+        ui.button("Search Rooms", on_click=lambda: set_page(2)).classes("rounded-lg")
+
     rooms = api_get("/rooms")
     if rooms and state["room_id"] is None:
         state["room_id"] = rooms[0]["id"]
-
-    search_component(on_booked=render_content.refresh)
 
     with ui.row().classes("w-full no-wrap"):
         with ui.column().classes("w-1/4 p-2"):
@@ -86,8 +94,16 @@ def main_page():
 
 @ui.refreshable
 def render_content():
-    calendar_view(api_get("/my-reservations"))
 
+
+    if state["page"] == 1: 
+        with ui.row().classes("w-full"):
+            calendar_view(api_get("/my-reservations"))
+    elif state["page"] == 2:
+        with ui.row().classes("w-full"):
+            search_component(on_booked=render_content.refresh)
+
+    
     ui.separator()
     render_my_reservations()
     ui.separator()
