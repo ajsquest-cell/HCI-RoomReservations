@@ -26,7 +26,7 @@ from calendar_view import calendar_view
 API_BASE = "http://localhost:8004"
 
 # global state for "which room is selected"
-state = {"room_id": None, "page": 1}
+state = {"room_id": None, "page": 1, "month": 10, "year": 2026}
 # global filtered reservations list
 current_filter_reservations = []
 
@@ -102,7 +102,7 @@ def render_content():
     if state["page"] == 1:
         with ui.row().classes("w-full no-wrap"):
             render_filter()
-            calendar_view(current_filter_reservations)
+            calendar_view(current_filter_reservations, change_month_callback=change_month, month=state["month"], year=state["year"])
     elif state["page"] == 2:
         with ui.row().classes("w-full"):
             search_component(on_booked=render_content.refresh)
@@ -111,6 +111,19 @@ def render_content():
     render_my_reservations()
     ui.separator()
     render_announcements()
+
+def change_month(delta: int):
+
+    state["month"] += delta
+
+    if state["month"] > 12:
+        state["month"] = 1
+        state["year"] += 1
+    elif state["month"] < 1:
+        state["month"] = 12
+        state["year"] -= 1    
+
+    render_content.refresh()
 
 
 def render_my_reservations():

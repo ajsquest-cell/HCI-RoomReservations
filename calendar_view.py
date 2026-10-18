@@ -4,7 +4,8 @@ import calendar
 from nicegui import ui
 
 
-def calendar_view(reservations, year=None, month=None):
+
+def calendar_view(reservations, change_month_callback, month=None, year=None):
 
     # Convert reservation dates from strings to dates
     # TODO: discuss with the team if this is changing anywhere else. 
@@ -22,9 +23,12 @@ def calendar_view(reservations, year=None, month=None):
 
 
     with ui.column().classes('w-full'):
-        ui.label(
-            f'{calendar.month_name[month]} {year}'
-        ).classes('text-2xl font-bold')
+        with ui.row().classes('w-full items-center justify-between'):
+            ui.button(icon='chevron_left', on_click=lambda: change_month_callback(-1)).classes('w-12 h-12')
+            ui.label(
+                f'{calendar.month_name[month]} {year}'
+            ).classes('text-2xl font-bold')
+            ui.button(icon='chevron_right', on_click=lambda: change_month_callback(1)).classes('w-12 h-12')
 
         with ui.grid(columns=7).classes('w-full gap-1'):
             for weekday in [
