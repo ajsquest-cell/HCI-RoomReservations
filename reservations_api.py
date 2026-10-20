@@ -16,10 +16,17 @@ Endpoints:
     GET  /rooms
     GET  /rooms/{room_id}
     GET  /rooms/{room_id}/slots
+    GET  /all-reservations
     GET  /my-reservations
     POST /reservations/book     body: {"room_id": int, "slot": str}
     POST /reservations/cancel   body: {"reservation_id": int}
     GET  /announcements
+
+Search endpoints:
+    GET  /slots
+    GET  /buildings
+    GET  /availability/by-time?start=9&end=17 # get rooms 
+    GET  /availability/by-building?building=X
 """
 
 from datetime import datetime
@@ -37,7 +44,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-NOW = datetime(2026, 8, 23, 9, 0, 0)
+NOW = datetime(2026, 10, 17, 9, 0, 0)
 TODAY = NOW.date().isoformat()
 
 # Every room offers the same fixed set of one-hour slots today.
@@ -51,18 +58,25 @@ SLOTS = [
 # ---------------------------------------------------------------------
 
 ROOMS = [
-    {"id": 1, "name": "Study Room 204", "building": "Library", "capacity": 4, "type": "study", "equipment": "whiteboard"},
-    {"id": 2, "name": "Study Room 210", "building": "Library", "capacity": 6, "type": "study", "equipment": "whiteboard, TV"},
-    {"id": 3, "name": "Conference Room A", "building": "Student Union", "capacity": 12, "type": "conference", "equipment": "projector, video conferencing"},
-    {"id": 4, "name": "Media Lab 1", "building": "Arts Building", "capacity": 8, "type": "lab", "equipment": "editing workstations"},
-    {"id": 5, "name": "Group Study Pod C", "building": "Library", "capacity": 2, "type": "study", "equipment": "none"},
+    {"id": 1, "name": "Study Room 204", "building": "Library",
+        "capacity": 4, "type": "study", "equipment": "whiteboard"},
+    {"id": 2, "name": "Study Room 210", "building": "Library",
+        "capacity": 6, "type": "study", "equipment": "whiteboard, TV"},
+    {"id": 3, "name": "Conference Room A", "building": "Student Union", "capacity": 12,
+        "type": "conference", "equipment": "projector, video conferencing"},
+    {"id": 4, "name": "Media Lab 1", "building": "Arts Building",
+        "capacity": 8, "type": "lab", "equipment": "editing workstations"},
+    {"id": 5, "name": "Group Study Pod C", "building": "Library",
+        "capacity": 2, "type": "study", "equipment": "none"},
 ]
 
 # Reservations for the (single, demo) logged-in user and everyone else,
 # all mixed together in one list -- this mock has no real auth.
 RESERVATIONS = [
-    {"id": 1, "room_id": 1, "date": TODAY, "slot": "10:00-11:00", "reserved_by": "you"},
-    {"id": 2, "room_id": 3, "date": TODAY, "slot": "13:00-14:00", "reserved_by": "Dolly Parton"},
+    {"id": 1, "room_id": 1, "date": TODAY,
+        "slot": "10:00-11:00", "reserved_by": "you"},
+    {"id": 2, "room_id": 3, "date": TODAY,
+        "slot": "13:00-14:00", "reserved_by": "Dolly Parton"},
 ]
 _next_reservation_id = 3
 
@@ -108,6 +122,27 @@ def _slot_reservation(room_id: int, slot: str):
             return r
     return None
 
+# Helper to get open slots for a room
+def _open_slots(room_id: int):
+    return [slot for slot in SLOTS if not _slot_reservation(room_id, slot)]
+
+# slots within the start to end range
+def _slots_in_range(start: int, end: int):
+    return [slot for slot in SLOTS if start <= int(slot.split(':')[0]) < end]
+
+# GET
+
+def _enrich_reservations(reservations):
+    """
+    Helper function to append room information onto given reservation items.
+    """
+    enriched = []
+    for r in reservations:
+        room = _get_room_or_404(r["room_id"])
+        enriched.append(
+            {**r, "room_name": room["name"], "building": room["building"]})
+    return enriched
+
 
 @app.get("/rooms")
 def list_rooms():
@@ -134,20 +169,69 @@ def get_room_slots(room_id: int):
     return result
 
 
+@app.get("/all-reservations")
+def get_all_reservations():
+    return _enrich_reservations(RESERVATIONS)
+
+
 @app.get("/my-reservations")
 def get_my_reservations():
     mine = [r for r in RESERVATIONS if r["reserved_by"] == "you"]
-    enriched = []
-    for r in mine:
-        room = _get_room_or_404(r["room_id"])
-        enriched.append({**r, "room_name": room["name"], "building": room["building"]})
-    return enriched
+    return _enrich_reservations(mine)
 
 
 @app.get("/announcements")
 def list_announcements():
     return ANNOUNCEMENTS
 
+
+# Search
+
+# List all available slots
+@app.get("/slots")
+def list_slots():
+    return SLOTS
+
+# List all buildings
+@app.get("/buildings")
+def list_buildings():
+    return sorted({room["building"] for room in ROOMS})
+
+# Get available rooms by time slots
+@app.get("/availability/by-time")
+def get_rooms_by_time(start: int, end: int, min_capacity: int = 0):
+    if (start >= end):
+        raise HTTPException(status_code=400, detail="Invalid time range")
+    # get time range
+    slots = _slots_in_range(start, end)
+    if len(slots) != end - start:
+        raise HTTPException(status_code=400, detail="Time range includes non-open hours")
+    available_rooms = []
+    # find available rooms
+    for room in ROOMS:
+        if room["capacity"] < min_capacity:
+            continue
+        open_slots = _open_slots(room["id"])
+        if any(slot in open_slots for slot in slots):
+            available_rooms.append(room)
+    return available_rooms
+
+# Get avalability by building
+@app.get("/availability/by-building")
+def get_rooms_by_building(building: str, min_capacity: int = 0):
+    if building not in {room["building"] for room in ROOMS}:
+        raise HTTPException(status_code=400, detail=f"Invalid building: {building}")
+
+    return [r for r in ROOMS if r["building"] == building and r["capacity"] >= min_capacity and _open_slots(r["id"])]
+
+# Get avalability by room
+@app.get("/availability/by-room")
+def get_rooms_by_room(room_id: int, start: int = 9, end: int = 17):
+    _get_room_or_404(room_id)
+    slots_in_range = _slots_in_range(start, end)
+    return [slot for slot in slots_in_range if slot in _open_slots(room_id)]
+
+# POST
 
 @app.post("/reservations/book")
 def book_reservation(req: BookRequest):
@@ -156,7 +240,8 @@ def book_reservation(req: BookRequest):
     if req.slot not in SLOTS:
         raise HTTPException(status_code=400, detail="Not a valid time slot")
     if _slot_reservation(req.room_id, req.slot):
-        raise HTTPException(status_code=400, detail="That slot is already reserved")
+        raise HTTPException(
+            status_code=400, detail="That slot is already reserved")
 
     new_reservation = {
         "id": _next_reservation_id,
