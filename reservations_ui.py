@@ -18,6 +18,7 @@ Then http://localhost:8083 will open automatically
 from datetime import datetime
 from nicegui import ui
 import requests
+from pathlib import Path
 
 from calendar_view import calendar_view
 from search_component import search_component
@@ -90,6 +91,9 @@ def set_page(page: int):
 
 @ui.page("/")
 def main_page():
+
+    ui.colors(primary="#003591", secondary="#003591")
+    ui.add_css(Path(__file__).with_name("style.css").read_text())
     with ui.row().classes("w-full no-wrap gap-2"):
         ui.label("Room Reservation System").classes("text-3xl font-bold pr-10")
         ui.button("Dashboard", on_click=lambda: set_page(1)
@@ -343,6 +347,5 @@ def render_announcements():
                             _render_no_messages_label()
 
             ui.button("Clear All", on_click=lambda: _clear_list())
-
 
 ui.run(port=8083, title="Mock Room Reservations")
