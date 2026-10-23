@@ -1,0 +1,76 @@
+/* style.css */
+
+/* Color palette */
+:root {
+    /* UNH */
+    --blue: #003591;
+    --white: #FFFFFF;
+    --gray: #A3A9AC;
+    /* helper colors */
+    --dark-blue: #00266B;
+    --light-blue: #E6EBF4;
+    --light-gray: #F3F4F5;
+    --text: #1E2328;
+}
+
+/* Page */
+body {
+    background-color: var(--light-gray);
+    color: var(--text);
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+
+
+/* Search */
+
+.search-toggle {
+    background-color: var(--blue);
+    color: var(--white);
+    font-weight: bold;
+    border-radius: 10px;
+    padding: 10px 10px;
+}
+
+.search-toggle:hover {
+    background-color: var(--dark-blue);
+}
+
+/* Room card */
+
+.room-card {
+    background-color: var(--white);
+    border: 1px solid var(--gray);
+    border-top: 4px solid var(--blue);
+    border-radius: 8px;
+}
+
+.room-link {
+    color: var(--blue);
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: bolder;
+    font-size: 1.1rem;
+}
+
+.room-link:hover {
+    color: var(--dark-blue);
+}
+
+.slot {
+    color: var(--blue);
+    background-color: var(--white);
+}
+
+.slot:hover {
+    background-color: var(--light-blue);
+}
+
+.room-info-title {
+    background-color: var(--blue);
+    color: var(--white);
+    padding: 10px 10px;
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+

@@ -25,7 +25,7 @@ def book(room_id, slot):
 
 # helper to toggle visibility of a section
 def toggle_selection(title):
-    ui.button(title, on_click=lambda: body.set_visibility(not body.visible)).classes("w-full")
+    ui.button(title, on_click=lambda: body.set_visibility(not body.visible)).classes("search-toggle")
     body = ui.column()
     body.set_visibility(False)
     return body
@@ -37,10 +37,8 @@ def get_attendance(size):
 # helper to show open slots
 def show_results(room, booking, start=9, end=17):
     slots = get("/availability/by-room", room_id=room["id"], start=start, end=end)
-    with ui.card():
-        ui.label(room["name"]).classes("text-lg font-bold").classes(
-            "text-lg font-bold text-blue-600 underline cursor-pointer"
-        ).on("click", lambda: room_details(room))
+    with ui.card().classes("room-card"):
+        ui.label(room["name"]).classes("room-link").on("click", lambda: room_details(room))
         ui.label(f'{room["building"]} - capacity {room["capacity"]}')
 
         if not slots:
@@ -49,20 +47,22 @@ def show_results(room, booking, start=9, end=17):
 
         with ui.row():
             for slot in slots:
-                ui.button(slot, on_click=lambda slot=slot: book_slot(room["id"], [slot], booking)).classes("m-1")
+                ui.button(slot, on_click=lambda slot=slot: book_slot(room["id"], [slot], booking)).classes("m-1 slot-btn").props("flat")
 
         if len(slots) > 1:
-            ui.button("Book all", on_click=lambda: book_slot(room["id"], slots, booking))
+            ui.button("Book all", on_click=lambda: book_slot(room["id"], slots, booking)).classes("slot-btn")
 
 
 # display pop up with room details
 def room_details(room):
-    with ui.dialog() as dialog, ui.card().classes("min-w-80"):
-        ui.label(room["name"]).classes("text-xl font-bold")
-        ui.label(f'Building: {room["building"]}')
-        ui.label(f'Capacity: {room["capacity"]}')
-        ui.label(f'Type: {room["type"].capitalize()}')
-        ui.label(f'Equipment: {room["equipment"]}')
+    with ui.dialog() as dialog, ui.card().tight().classes("min-w-80"):
+        ui.label(room["name"]).classes("room-info-title w-full")
+
+        with ui.card_section():
+            ui.label(f'Building: {room["building"]}')
+            ui.label(f'Capacity: {room["capacity"]}')
+            ui.label(f'Type: {room["type"].capitalize()}')
+            ui.label(f'Equipment: {room["equipment"]}')
     dialog.open()
 
 # helper to book slot
