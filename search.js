@@ -37,8 +37,21 @@ async function book(roomId, slot) {
 }
 
 // notifications
+let messageTimer;
 function showMessage(text) {
-    document.getElementById("message").textContent = text;
+    const popup = document.getElementById("message");
+    clearTimeout(messageTimer);
+
+    if (!text) {
+        popup.classList.remove("show");
+        return;
+    }
+
+    popup.textContent = text;
+    popup.classList.add("show");
+
+    const time = Math.max(3000, text.length * 50);
+    messageTimer = setTimeout(() => popup.classList.remove("show"), time);
 }
 
 // toggle
