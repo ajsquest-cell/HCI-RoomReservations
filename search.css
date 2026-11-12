@@ -1,0 +1,151 @@
+/* search.css */
+
+#message { margin: 0; min-height: 1.2em; }
+
+.search {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.search-toggle {
+    width: 100%;
+    padding: 10px 16px;
+    background: var(--blue);
+    color: var(--white);
+    font-size: 15px;
+    font-weight: 600;
+    text-align: left;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.search-toggle:hover { background: var(--blue-dark); }
+
+.search-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 8px 0px 12px;
+}
+
+.search-body[hidden] { display: none; }
+
+.fields {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+}
+
+.field select, .field input {
+    min-width: 160px;
+    padding: 8px;
+    font-size: 15px;
+    border: 1px solid var(--gray);
+    border-radius: 4px;
+}
+
+.field input {min-width: 240px;}
+
+.search-btn {
+    padding: 10px 20px;
+    background: var(--blue);
+    color: var(--white);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.search-btn:hover { background: var(--blue-dark); }
+
+.results {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.room-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 260px;
+    padding: 12px;
+    background: var(--white);
+    border: 1px solid var(--gray);
+    border-top: 4px solid var(--blue);
+    border-radius: 8px;
+}
+
+.room-link {
+    color: var(--blue);
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.room-link:hover { 
+    background: var(--blue-dark); 
+    color: var(--white)
+}
+
+.slot-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.slot-btn {
+    padding: 6px 10px;
+    background: var(--white);
+    color: var(--blue);
+    border: 1px solid var(--blue);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.slot-btn:hover { background: var(--blue-tint); }
+
+.book-all-btn {
+    padding: 8px;
+    background: var(--blue);
+    color: var(--white);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.book-all-btn:hover { background: var(--blue-dark); }
+
+/* */
+
+#room-dialog {
+    min-width: 320px;
+    padding: 0px;
+    border: none;
+    border-radius: 8px;
+}
+
+.details-title {
+    margin: 0;
+    padding: 12px 16px;
+    background: var(--blue);
+    color: var(--white);
+}
+
+.details-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 16px 15px;
+}
+
+#details-type { text-transform: capitalize; }

@@ -3,27 +3,115 @@
     <head>
         <meta charset="UTF-8">
         <title>Room Search: Time/Location</title>
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="search.css">
     </head>
     <body>
-        <p id="message"></p>
+        <div id="error"></div>
+        
+        <div class="search">
+            <p id="message"></p>
+            
+            <!-- Search by time -->
+            <button class="search-toggle" onclick="toggle('time-section')">Search for available locations by time</button>
+            <div id="time-section" class="search-body" hidden>
+                <!-- input fields -->
+                <div class="fields">
+                    <label class="field">Start time
+                        <select id="start">
+                            <option value="">-- choose --</option>
+                            <option value="9">9:00</option>
+                            <option value="10">10:00</option>
+                            <option value="11">11:00</option>
+                            <option value="12">12:00</option>
+                            <option value="13">13:00</option>
+                            <option value="14">14:00</option>
+                            <option value="15">15:00</option>
+                            <option value="16">16:00</option>
+                        </select>
+                    </label>
 
-        <button onclick="toggle('time-section')">Search for available locations by time</button>
-        <div id="time-section" hidden>
-            <label>Start time <input id="start" type="number" min="9" max="16"></label>
-            <label>End time <input id="end" type="number" min="10" max="17"></label>
-            <button onclick="searchByTime()">Search</button>
-            <div id="time-results"></div>
+                    <label class="field">End time
+                        <select id="end">
+                            <option value="">-- choose --</option>
+                            <option value="10">10:00</option>
+                            <option value="11">11:00</option>
+                            <option value="12">12:00</option>
+                            <option value="13">13:00</option>
+                            <option value="14">14:00</option>
+                            <option value="15">15:00</option>
+                            <option value="16">16:00</option>
+                            <option value="17">17:00</option>
+                        </select>
+                    </label>
+
+                    <label class="field">Expected attendance (optional)
+                        <input id="time-attendance" type="number" min="1" step="1">
+                    </label>
+
+                    <button class="search-btn" onclick="searchByTime()">Search</button>
+                </div>
+                <!-- results -->
+                <div id="time-results" class="results"></div>
+            </div>
+
+        <!-- Search by location -->
+        <button class="search-toggle" onclick="toggle('building-section')">Search for available locations by building</button>
+            <div id="building-section" class="search-body" hidden>
+                <div class = "fields">
+                <!-- input fields -->
+                <label class="field">Building 
+                    <select id="building">
+                        <option value="">-- choose --</option>
+                    </select>
+                </label>
+                    <label class="field">Expected attendance (optional)
+                        <input id="building-attendance" type="number" min="1" step="1">
+                    </label>
+                    <button class="search-btn" onclick="searchByBuilding()">Search</button>
+                </div>
+                <!-- results -->
+                <div id="building-results" class="results"></div>
+            </div>
         </div>
 
-    <br><br>
+        <!-- info popup -->
+        <dialog id="room-dialog">
+            <h2 id="details-name" class="details-title"></h2>
+            <div class="details-body">
+                <p>Building: <span id="details-building"></span></p>
+                <p>Capacity: <span id="details-capacity"></span></p>
+                <p>Type: <span id="details-type"></span></p>
+                <p>Equipment: <span id="details-equipment"></span></p>
+                <button class="book-all-btn" onclick="closeDetails()">Close</button>
+            </div>
+        </dialog>
 
-    <button onclick="toggle('building-section')">Search for available locations by building</button>
-        <div id="building-section" hidden>
-            <label>Building <select id="building"></select></label>
-            <button onclick="searchByBuilding()">Search</button>
-            <div id="building-results"></div>
-        </div>
+        <!-- main page copied TODO: update -->
+            <div class="layout">
+                <div class="sidebar">
+                    <h2>Rooms</h2>
+                    <div id="room-list"></div>
+                </div>
 
+                <div class="main">
+                    <div id="room-header"></div>
+
+                    <h2>Today's availability</h2>
+                    <div id="slots"></div>
+
+                    <hr>
+                    <h2>My Reservations</h2>
+                    <div id="my-reservations"></div>
+
+                    <hr>
+                    <h2>Announcements</h2>
+                    <div id="announcements"></div>
+                </div>
+            </div>
+
+        <!-- scripts -->
+        <script src="script.js"></script>
         <script src="search.js"></script>
     </body>
 </html>
