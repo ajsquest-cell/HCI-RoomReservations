@@ -51,6 +51,14 @@
 
                     <button class="search-btn" onclick="searchByTime()">Search</button>
                 </div>
+
+                <div class="legend" hidden>
+                    <span class="legend-item"><span class="swatch seg-open"></span>Open</span>
+                    <span class="legend-item"><span class="swatch seg-open seg-selected"></span>Selected</span>
+                    <span class="legend-item"><span class="swatch seg-mine">✓</span>Booked by you</span>
+                    <span class="legend-item"><span class="swatch seg-taken">✗</span>Booked by someone else</span>
+                </div>
+
                 <!-- results -->
                 <div id="time-results" class="results"></div>
             </div>
@@ -70,6 +78,14 @@
                     </label>
                     <button class="search-btn" onclick="searchByBuilding()">Search</button>
                 </div>
+
+                <div class="legend" hidden>
+                    <span class="legend-item"><span class="swatch seg-open"></span>Open</span>
+                    <span class="legend-item"><span class="swatch seg-open seg-selected"></span>Selected</span>
+                    <span class="legend-item"><span class="swatch seg-mine">✓</span>Booked by you</span>
+                    <span class="legend-item"><span class="swatch seg-taken">✗</span>Booked by someone else</span>
+                </div>
+
                 <!-- results -->
                 <div id="building-results" class="results"></div>
             </div>
@@ -86,6 +102,26 @@
                 <button class="book-all-btn" onclick="closeDetails()">Close</button>
             </div>
         </dialog>
+
+        <!-- room card template to by copied in JS -->
+        <template id="room-card-template">
+            <div class="room-card">
+                <a href="#" class="room-link"></a>
+                <div class="room-info"></div>
+                <div class="timeline-wrap">
+                    <div class="timeline"></div>
+                    <div class="selection">Click a start, then an end time</div>
+                    <button class="book-all-btn" disabled>Book selected</button>
+                </div>
+            </div>
+        </template>
+
+        <template id="slot-template">
+            <button class="seg">
+                <span class="seg-hour"></span>
+                <span class="seg-icon"></span>
+            </button>
+        </template>
 
         <!-- main page copied TODO: update -->
             <div class="layout">
