@@ -3,85 +3,138 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mock Room Reservations</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="dashboard.css">
 </head>
 
 <body>
+  <!-- App bar -->
+  <header class="app-bar">
+    <h1 class="app-bar__title">Room Reservations</h1>
+    <nav class="app-bar__nav">
+      <a class="nav-link is-active" href="index.html">Dashboard</a>
+      <a class="nav-link" href="search.html">Search Rooms</a>
+    </nav>
+  </header>
+
   <div id="error"></div>
 
-  <div class="layout">
-    <div class="sidebar">
-      <h2>Rooms</h2>
-      <div id="room-list"></div>
-    </div>
+  <main class="container">
+    <div class="dashboard">
 
-    <div class="main">
-      <div id="room-header"></div>
-
-      <h2>Today's availability</h2>
-      <div id="slots"></div>
-
-      <hr>
-      <h2>My Reservations</h2>
-      <div id="my-reservations"></div>
-
-      <hr>
-
-      <div id="announcements">
-        <div id="announcements-header">
-          <h2 id="announcements-header-text">Announcements (# unread)</h2>
-          <!-- clearing all announcements button and confirmation dialog -->
-          <button id="announcement-clear-all-messages-button" type="button">Clear All Announcements</button>
+      <!-- Sidebar: room list -->
+      <aside class="card" id="sidebar">
+        <div class="card__head">
+          <h2 class="card__title">Rooms</h2>
         </div>
+        <div id="room-list"></div>
+      </aside>
 
-        <!-- clear all announcements dialog -->
-        <div id="announcement-clear-all"> <!-- Used to recycle confirmation dialog class -->
-          <dialog class="announcement-message-clear-confirmation-dialog">
-            <p>Are you sure you want to remove all announcements?</p>
-            <div class="announcement-message-clear-confirmation-dialog-buttons">
-              <button class="announcement-message-clear-confirmation-dialog-yes-button" type="button">Yes</button>
-              <button class="announcement-message-clear-confirmation-dialog-no-button" type="button">No</button>
-            </div>
-          </dialog>
-        </div>
-
-        <!-- all unread announcement messages -->
-        <div id="announcements-unread">
-          <!-- populated by announcement messages (template) -->
-        </div>
-        <h3 id="announcements-no-new-messages" hidden>No new announcements...</h3>
-
-        <!-- Announcement message template for populating unread announcements -->
-        <template id="announcement-message-template">
-          <div class="announcement-message">
-            <!-- text and other information for announcement -->
-            <article class="announcement-message-content">
-              <h2 class="announcement-message-title">Announcement Title</h2>
-              <p class="announcement-message-posted">Posted: <time
-                  class="announcement-message-posted-time">*time*</time></p>
-              <p class="announcement-message-body" hidden>Announcement body.</p>
-            </article>
-            <!-- clearing announcement message -->
-            <button class="announcement-message-clear-button" type="button">❌</button> <!-- TODO: this is jank... -->
+      <!-- Main column -->
+      <div>
+        <!-- Reservation filter (mirrors the Python version: User/Room/Building,
+             AND across fields, OR within a field) -->
+        <section class="card">
+          <div class="card__head">
+            <h2 class="card__title">Filter Reservations</h2>
+            <button class="btn" id="filter-clear" type="button" disabled>Clear</button>
           </div>
-          <!-- clearing announcement confirmation -->
-          <dialog class="announcement-message-clear-confirmation-dialog">
-            <p>Are you sure you want to remove this announcement?</p>
-            <div class="announcement-message-clear-confirmation-dialog-buttons">
-              <button class="announcement-message-clear-confirmation-dialog-yes-button" type="button">Yes</button>
-              <button class="announcement-message-clear-confirmation-dialog-no-button" type="button">No</button>
+          <div class="filter-grid">
+            <div class="filter-field">
+              <span class="filter-field__label">User</span>
+              <div class="ms" id="filter-reserved_by"></div>
             </div>
-          </dialog>
-        </template>
+            <div class="filter-field">
+              <span class="filter-field__label">Room</span>
+              <div class="ms" id="filter-room_name"></div>
+            </div>
+            <div class="filter-field">
+              <span class="filter-field__label">Building</span>
+              <div class="ms" id="filter-building"></div>
+            </div>
+          </div>
+          <div id="filter-results" class="filter-results"></div>
+        </section>
 
+        <!-- Calendar view placeholder. The real month calendar (see the
+             Python calendar_view) will be built by a teammate and mounted
+             into this box. Empty on purpose for now. -->
+        <section class="card calendar-box" id="calendar-view"></section>
 
+        <!-- Selected room + today's availability -->
+        <section class="card">
+          <div id="room-header"></div>
+          <div class="card__head" style="margin-top: 12px;">
+            <h2 class="card__title">Today's Availability</h2>
+          </div>
+          <div id="slots"></div>
+        </section>
+
+        <!-- My reservations -->
+        <section class="card">
+          <div class="card__head">
+            <h2 class="card__title">My Reservations</h2>
+          </div>
+          <div id="my-reservations"></div>
+        </section>
+
+        <!-- Announcements -->
+        <section class="card" id="announcements">
+          <div class="card__head" id="announcements-header">
+            <h2 class="card__title" id="announcements-header-text">Announcements (# unread)</h2>
+            <!-- clearing all announcements button and confirmation dialog -->
+            <button class="btn" id="announcement-clear-all-messages-button" type="button">Clear All</button>
+          </div>
+
+          <!-- clear all announcements dialog -->
+          <div id="announcement-clear-all"> <!-- Used to recycle confirmation dialog class -->
+            <dialog class="announcement-message-clear-confirmation-dialog">
+              <p>Are you sure you want to remove all announcements?</p>
+              <div class="announcement-message-clear-confirmation-dialog-buttons">
+                <button class="announcement-message-clear-confirmation-dialog-yes-button" type="button">Yes</button>
+                <button class="announcement-message-clear-confirmation-dialog-no-button" type="button">No</button>
+              </div>
+            </dialog>
+          </div>
+
+          <!-- all unread announcement messages -->
+          <div id="announcements-unread">
+            <!-- populated by announcement messages (template) -->
+          </div>
+          <h3 id="announcements-no-new-messages" hidden>No new announcements...</h3>
+
+          <!-- Announcement message template for populating unread announcements -->
+          <template id="announcement-message-template">
+            <div class="announcement-message">
+              <!-- text and other information for announcement -->
+              <article class="announcement-message-content">
+                <h2 class="announcement-message-title">Announcement Title</h2>
+                <p class="announcement-message-posted">Posted: <time
+                    class="announcement-message-posted-time">*time*</time></p>
+                <p class="announcement-message-body" hidden>Announcement body.</p>
+              </article>
+              <!-- clearing announcement message -->
+              <button class="announcement-message-clear-button" type="button">❌</button>
+            </div>
+            <!-- clearing announcement confirmation -->
+            <dialog class="announcement-message-clear-confirmation-dialog">
+              <p>Are you sure you want to remove this announcement?</p>
+              <div class="announcement-message-clear-confirmation-dialog-buttons">
+                <button class="announcement-message-clear-confirmation-dialog-yes-button" type="button">Yes</button>
+                <button class="announcement-message-clear-confirmation-dialog-no-button" type="button">No</button>
+              </div>
+            </dialog>
+          </template>
+        </section>
       </div>
 
     </div>
-  </div>
+  </main>
 
   <script src="script.js"></script>
+  <script src="dashboard-filter.js"></script>
 </body>
 
 </html>

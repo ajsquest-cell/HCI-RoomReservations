@@ -40,9 +40,10 @@ async function apiPost(path, body) {
 function showError(msg) { document.getElementById("error").textContent = msg; }
 function clearError() { document.getElementById("error").textContent = ""; }
 
-function el(tag, text) {
+function el(tag, text, className) {
   const node = document.createElement(tag);
   if (text !== undefined) node.textContent = text;
+  if (className) node.className = className;
   return node;
 }
 
@@ -60,6 +61,7 @@ async function cancelReservation(reservationId) {
 
 function selectRoom(roomId) {
   state.roomId = roomId;
+  renderSidebar();
   renderContent();
 }
 
@@ -78,8 +80,13 @@ async function renderSidebar() {
   }
 
   for (const room of rooms) {
-    const link = el("a", `${room.name} (${room.building})`);
+    const isActive = room.id === state.roomId;
+    const link = el("a", undefined, "room-item" + (isActive ? " is-active" : ""));
     link.href = "#";
+    link.append(
+      el("span", room.name, "room-item__name"),
+      el("span", room.building, "room-item__building"),
+    );
     link.onclick = (e) => {
       e.preventDefault();
       selectRoom(room.id);
@@ -103,9 +110,13 @@ async function renderRoomHeader() {
   const room = await apiGet(`/rooms/${state.roomId}`, {});
   const header = document.getElementById("room-header");
   header.replaceChildren();
-  header.appendChild(el("h1", room.name || ""));
-  header.appendChild(el("h1",
-    `${room.building || ""} - capacity ${room.capacity || ""} - ${room.equipment || ""}`));
+  header.appendChild(el("h1", room.name || "", "room-header__name"));
+
+  const meta = el("div", undefined, "room-header__meta");
+  if (room.building) meta.appendChild(el("span", room.building, "chip"));
+  if (room.capacity) meta.appendChild(el("span", `capacity ${room.capacity}`, "chip"));
+  if (room.equipment) meta.appendChild(el("span", room.equipment, "chip"));
+  header.appendChild(meta);
 }
 
 async function renderSlots() {
@@ -114,19 +125,23 @@ async function renderSlots() {
   container.replaceChildren();
 
   for (const s of slots) {
-    const row = el("div");
-    row.className = "row";
+    const row = el("div", undefined, "slot-row");
 
-    let label = `${s.slot} - ${s.status}`;
-    if (s.reserved_by) label += ` (${s.reserved_by})`;
-    row.appendChild(el("span", label));
+    row.appendChild(el("span", s.slot, "slot-row__time"));
 
-    if (s.status === "available") {
-      const btn = el("button", "Book");
+    const isOpen = s.status === "available";
+    row.appendChild(el("span", s.status, "badge " + (isOpen ? "badge--open" : "badge--taken")));
+
+    if (s.reserved_by) row.appendChild(el("span", s.reserved_by, "slot-row__who"));
+
+    row.appendChild(el("span", undefined, "slot-row__spacer"));
+
+    if (isOpen) {
+      const btn = el("button", "Book", "btn btn--primary");
       btn.onclick = () => bookSlot(state.roomId, s.slot);
       row.appendChild(btn);
     } else if (s.reserved_by === "you") {
-      const btn = el("button", "Cancel");
+      const btn = el("button", "Cancel", "btn btn--danger");
       btn.onclick = () => cancelReservation(s.reservation_id);
       row.appendChild(btn);
     }
@@ -140,16 +155,15 @@ async function renderMyReservations() {
   container.replaceChildren();
 
   if (!reservations.length) {
-    container.appendChild(el("div", "You don't have any reservations yet."));
+    container.appendChild(el("div", "You don't have any reservations yet.", "muted"));
     return;
   }
 
   for (const r of reservations) {
-    const row = el("div");
-    row.className = "row";
-    row.appendChild(el("span", `${r.room_name} (${r.building}) - ${r.date} ${r.slot}`));
+    const row = el("div", undefined, "reservation-row");
+    row.appendChild(el("span", `${r.room_name} (${r.building}) — ${r.date} ${r.slot}`, "reservation-row__text"));
 
-    const btn = el("button", "Cancel");
+    const btn = el("button", "Cancel", "btn btn--danger");
     btn.onclick = () => cancelReservation(r.id);
     row.appendChild(btn);
 
