@@ -16,6 +16,7 @@ Endpoints:
     GET  /rooms
     GET  /rooms/{room_id}
     GET  /rooms/{room_id}/slots
+    GET  /rooms/{room_id}/images
     GET  /all-reservations
     GET  /my-reservations
     GET  /announcements
@@ -81,6 +82,44 @@ RESERVATIONS = [
         "slot": "13:00-14:00", "reserved_by": "Dolly Parton"},
 ]
 _next_reservation_id = 3
+
+# Images for each room by room id.
+#   "main":  the image used to represent the room
+#   "other": additional images, shown in image gallery
+# Rooms without an entry use MISSING_ROOM_IMAGE as their main image.
+ROOM_IMAGES = {
+    1: {
+        "main": {"src": "images/rooms/1/1.svg", "alt": "Study Room 204"},
+        "other": [
+            {"src": "images/rooms/1/2.svg", "alt": "Study Room 204 whiteboard"},
+            {"src": "images/rooms/1/3.svg", "alt": "Study Room 204 seating"},
+        ],
+    },
+    2: {
+        "main": {"src": "images/rooms/2/1.svg", "alt": "Study Room 210"},
+        "other": [
+            {"src": "images/rooms/2/2.svg", "alt": "Study Room 210 TV"},
+            {"src": "images/rooms/2/3.svg", "alt": "Study Room 210 seating"},
+        ],
+    },
+    3: {
+        "main": {"src": "images/rooms/3/1.svg", "alt": "Conference Room A"},
+        "other": [
+            {"src": "images/rooms/3/2.svg", "alt": "Conference Room A projector"},
+            {"src": "images/rooms/3/3.svg", "alt": "Conference Room A table"},
+        ],
+    },
+    4: {
+        "main": {"src": "images/rooms/4/1.svg", "alt": "Media Lab 1"},
+        "other": [],
+    },
+    # 5: {
+    #     "main": {},
+    #     "other": [],
+    # },
+}
+MISSING_ROOM_IMAGE = {"src": "images/rooms/default/MISSING_ROOM.svg",
+                      "alt": "No image available"}
 
 ANNOUNCEMENTS = [
     {
@@ -189,6 +228,27 @@ def get_room_slots(room_id: int):
             "reservation_id": existing["id"] if existing else None,
         })
     return result
+
+
+@app.get("/rooms/{room_id}/images")
+def get_room_images(room_id: int):
+    """
+    Get a room's images. If the room has no images, then it will add
+    MISSING_ROOM_IMAGE to main before sending images.
+    """
+    room = _get_room_or_404(room_id)
+
+    images = ROOM_IMAGES.get(room_id, {})
+    main = images.get("main", {})
+    other = images.get("other", [])
+
+    # Use first "other" image as main, else use missing image.
+    if not main:
+        main = other.pop(0) if other else \
+            {**MISSING_ROOM_IMAGE,
+                "alt": f"No image available for {room['name']}"}
+
+    return {"main": main, "other": other}
 
 
 @app.get("/all-reservations")

@@ -144,6 +144,88 @@ hr {
   font-weight: bold;
 }
 
+/* Room images */
+.reservation {
+  gap: 16px;
+  cursor: pointer;
+}
+.reservation-content {
+  flex: 1;
+}
+/* Make sure the hidden attribute wins over display rules below */
+.reservation-room-thumbnail-box [hidden],
+.reservation-room-details-dialog [hidden] {
+  display: none;
+}
+.reservation-room-thumbnail-box {
+  flex: none;
+  width: 96px;
+  height: 72px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--gray);
+}
+.reservation-room-thumbnail {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.reservation-room-details-dialog {
+  width: min(90vw, 640px);
+  border: 2px solid var(--blue-dark);
+  border-radius: 10px;
+  background: var(--blue-tint);
+}
+.reservation-room-details-buttons {
+  display: flex;
+  justify-content: center;
+}
+.room-gallery-viewer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.room-gallery-image {
+  flex: 1;
+  min-width: 0;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  background: var(--white);
+  border-radius: 6px;
+}
+.room-gallery-prev,
+.room-gallery-next {
+  font-size: large;
+  cursor: pointer;
+}
+.room-gallery-counter {
+  text-align: center;
+}
+.room-gallery-thumbnails {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px;
+}
+.room-gallery-thumbnail {
+  flex: none;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+  scroll-snap-align: start;
+}
+.room-gallery-thumbnail img {
+  display: block;
+  width: 64px;
+  height: 48px;
+  object-fit: cover;
+}
+
 #announcements-header {
   display: flex;
   justify-content: space-between;
