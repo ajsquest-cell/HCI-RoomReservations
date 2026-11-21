@@ -98,6 +98,16 @@
                 <p>Capacity: <span id="details-capacity"></span></p>
                 <p>Type: <span id="details-type"></span></p>
                 <p>Equipment: <span id="details-equipment"></span></p>
+                <!-- room image gallery -->
+                <div class="room-gallery" hidden>
+                    <div class="room-gallery-viewer">
+                        <button class="room-gallery-prev" type="button" aria-label="Previous image">◀</button>
+                        <img class="room-gallery-image" alt="">
+                        <button class="room-gallery-next" type="button" aria-label="Next image">▶</button>
+                    </div>
+                    <p class="room-gallery-counter"># / #</p>
+                    <div class="room-gallery-thumbnails"></div>
+                </div>
                 <button class="book-all-btn" onclick="closeDetails()">Close</button>
             </div>
         </dialog>
@@ -105,6 +115,7 @@
         <!-- room card template to by copied in JS -->
         <template id="room-card-template">
             <div class="room-card">
+                <img class="room-card-thumbnail" alt="" hidden>
                 <a href="#" class="room-link"></a>
                 <div class="room-info"></div>
                 <div class="timeline-wrap">
@@ -113,6 +124,12 @@
                     <button class="book-all-btn" disabled>Book selected</button>
                 </div>
             </div>
+        </template>
+
+        <template id="room-gallery-thumbnail-template">
+            <button class="room-gallery-thumbnail" type="button" aria-label="Show image">
+                <img class="room-gallery-thumbnail-image" alt="">
+            </button>
         </template>
 
         <template id="slot-template">

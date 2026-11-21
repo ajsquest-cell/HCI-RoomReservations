@@ -131,6 +131,15 @@ function makeCard(room, slots, refresh) {
     link.onclick = (e) => { e.preventDefault(); showDetails(room); };
     card.querySelector(".room-info").textContent = `${room.building} - capacity ${room.capacity}`;
 
+    // Main room image
+    const thumbnail = card.querySelector(".room-card-thumbnail");
+    thumbnail.onclick = () => showDetails(room);
+    fetchRoomImages(room.id).then((images) => {
+        thumbnail.src = images.main.src;
+        thumbnail.alt = images.main.alt || "";
+        thumbnail.hidden = false;
+    });
+
     const blocks = [];
     slots.forEach((s, i) => {
         const block =  cloneTemplate("slot-template");
@@ -244,7 +253,15 @@ function showDetails(room) {
     document.getElementById("details-capacity").textContent = room.capacity;
     document.getElementById("details-type").textContent = room.type;
     document.getElementById("details-equipment").textContent = room.equipment;
-    document.getElementById("room-dialog").showModal();
+
+    const dialog = document.getElementById("room-dialog");
+    dialog.showModal();
+
+    dialog.querySelector(".room-gallery").hidden = true;
+    dialog.dataset.roomId = room.id;
+    fetchRoomImages(room.id).then((images) => {
+        if (dialog.dataset.roomId == room.id) renderRoomGallery(dialog, images);
+    });
 }
 
 function closeDetails() {

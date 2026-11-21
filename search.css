@@ -107,6 +107,24 @@
     border-radius: 8px;
 }
 
+/* room main image thumbnail in the top-right of a result */
+.room-card { position: relative; }
+
+.room-card-thumbnail {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 64px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.room-card-thumbnail[hidden] { display: none; }
+
+.room-card .room-link, .room-card .room-info { margin-right: 76px; }
+
 .room-link {
     color: var(--blue);
     font-size: 20px;

@@ -281,6 +281,68 @@ async function renderSlots() {
   }
 }
 
+// Populates the .room-gallery inside the given dialog with a room's images.
+// Shared by My Reservations and Search Page
+function renderRoomGallery(dialog, roomImages) {
+  const gallery = dialog.querySelector(".room-gallery");
+  const image = dialog.querySelector(".room-gallery-image");
+  const counter = dialog.querySelector(".room-gallery-counter");
+  const prev = dialog.querySelector(".room-gallery-prev");
+  const next = dialog.querySelector(".room-gallery-next");
+  const thumbnails = dialog.querySelector(".room-gallery-thumbnails");
+
+  const images = [roomImages.main, ...roomImages.other];
+  gallery.hidden = false;
+
+  // hide navigation if there are no other images to navigate to
+  const hideNavigation = images.length <= 1;
+  prev.hidden = hideNavigation;
+  next.hidden = hideNavigation;
+  thumbnails.hidden = hideNavigation;
+
+  let imageIndex = 0;
+  prev.onclick = () => _showThumbnail(imageIndex - 1);
+  next.onclick = () => _showThumbnail(imageIndex + 1);
+
+  // ~~~Create thumbnail buttons for gallery~~~ //
+
+  thumbnails.replaceChildren();
+  for (let i = 0; i < images.length; i++) {
+    thumbnails.appendChild(_createThumbnailButton(images[i], i));
+  }
+  _showThumbnail(0);
+
+  function _createThumbnailButton(image, i) {
+    const thumbnailButtonTemplate = document.getElementById("room-gallery-thumbnail-template");
+    const button = thumbnailButtonTemplate.content.firstElementChild.cloneNode(true);
+    button.onclick = () => _showThumbnail(i);
+
+    const thumbnail = button.querySelector(".room-gallery-thumbnail-image");
+    thumbnail.src = image.src;
+    thumbnail.alt = image.alt || "";
+
+    return button;
+  }
+
+  function _showThumbnail(i) {
+    // cycle through thumbnails if reach edge
+    if (i >= images.length) {
+      imageIndex = 0;
+    }
+    else if (i < 0) {
+      imageIndex = images.length - 1;
+    }
+    else {
+      imageIndex = i;
+    }
+
+    image.src = images[imageIndex].src;
+    image.alt = images[imageIndex].alt || "";
+    counter.textContent = `${imageIndex + 1} / ${images.length}`;
+  }
+
+}
+
 async function renderMyReservations() {
   // Reservations can change outside of rendering (booking), so a fetch is necessary here...
   state.myReservations = await apiGet("/my-reservations");
@@ -296,66 +358,6 @@ async function renderMyReservations() {
     return parseInt(slot.split(":")[0], 10);
   }
 
-  function _renderGallery(dialog, roomImages) {
-    const gallery = dialog.querySelector(".room-gallery");
-    const image = dialog.querySelector(".room-gallery-image");
-    const counter = dialog.querySelector(".room-gallery-counter");
-    const prev = dialog.querySelector(".room-gallery-prev");
-    const next = dialog.querySelector(".room-gallery-next");
-    const thumbnails = dialog.querySelector(".room-gallery-thumbnails");
-
-    const images = [roomImages.main, ...roomImages.other];
-    gallery.hidden = false;
-
-    // hide navigation if there are no other images to navigate to
-    const hideNavigation = images.length <= 1;
-    prev.hidden = hideNavigation;
-    next.hidden = hideNavigation;
-    thumbnails.hidden = hideNavigation;
-
-    let imageIndex = 0;
-    prev.onclick = () => _showThumbnail(imageIndex - 1);
-    next.onclick = () => _showThumbnail(imageIndex + 1);
-
-    // ~~~Create thumbnail buttons for gallery~~~ //
-
-    thumbnails.replaceChildren();
-    for (let i = 0; i < images.length; i++) {
-      thumbnails.appendChild(_createThumbnailButton(images[i], i));
-    }
-    _showThumbnail(0);
-
-    function _createThumbnailButton(image, i) {
-      const thumbnailButtonTemplate = document.getElementById("room-gallery-thumbnail-template");
-      const button = thumbnailButtonTemplate.content.firstElementChild.cloneNode(true);
-      button.onclick = () => _showThumbnail(i);
-
-      const thumbnail = button.querySelector(".room-gallery-thumbnail-image");
-      thumbnail.src = image.src;
-      thumbnail.alt = image.alt || "";
-
-      return button;
-    }
-
-    function _showThumbnail(i) {
-      // cycle through thumbnails if reach edge
-      if (i >= images.length) {
-        imageIndex = 0;
-      }
-      else if (i < 0) {
-        imageIndex = images.length - 1;
-      }
-      else {
-        imageIndex = i;
-      }
-
-      image.src = images[imageIndex].src;
-      image.alt = images[imageIndex].alt || "";
-      counter.textContent = `${imageIndex + 1} / ${images.length}`;
-    }
-
-  }
-
   function _openRoomDetails(dialog, reservation) {
     dialog.querySelector(".reservation-room-details-name").textContent = reservation.room_name;
     dialog.querySelector(".reservation-room-details-building").textContent = reservation.building;
@@ -366,7 +368,7 @@ async function renderMyReservations() {
       dialog.querySelector(".reservation-room-details-type").textContent = room.type ?? "Unknown";
       dialog.querySelector(".reservation-room-details-equipment").textContent = room.equipment ?? "Unknown";
     });
-    fetchRoomImages(reservation.room_id).then((images) => _renderGallery(dialog, images));
+    fetchRoomImages(reservation.room_id).then((images) => renderRoomGallery(dialog, images));
   }
 
   function _createReservation(reservation) {

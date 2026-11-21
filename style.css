@@ -152,9 +152,10 @@ hr {
 .reservation-content {
   flex: 1;
 }
-/* Make sure the hidden attribute wins over display rules below */
+
 .reservation-room-thumbnail-box [hidden],
-.reservation-room-details-dialog [hidden] {
+.reservation-room-details-dialog [hidden],
+.room-gallery [hidden] {
   display: none;
 }
 .reservation-room-details-dialog::backdrop {
@@ -194,10 +195,6 @@ hr {
 }
 
 .reservation-room-details-dialog {
-  /* width: min(90vw, 640px); */
-  /* border: 2px solid var(--blue-dark); */
-  /* border-radius: 10px; */
-  /* background: var(--blue-tint); */
   min-width: 320px;
   padding: 0px;
   border: none;
