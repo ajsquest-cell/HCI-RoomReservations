@@ -239,7 +239,7 @@ hr {
   border: 2px solid var(--blue-dark);
   border-radius: 10px;
   background: var(--blue-tint);
-  padding: 20px; 0px;
+  padding: 20px 0px;
   margin: 5px;
 }
 .announcement-message-posted {
