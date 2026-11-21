@@ -5,6 +5,16 @@
 
   --blue-dark: #00266B;
   --blue-tint: #E6EBF4;
+
+  /* Colors */
+  --primary-color: #2563eb;
+  --secondary-color: #64748b;
+  --background-color: #f1f5f9;
+  --card-color: #ffffff;
+  --border-color: #d1d5db;
+  --empty-day-color: #cac8c8;
+  --event-color: #dbeafe;
+  --border-color: #202229;
 }
 
 body {
@@ -50,6 +60,90 @@ hr {
   color: #b00020;
 }
 
+/* Calendar container */
+.calendar {
+    width: 100%;
+    margin: 20px auto;
+}
+
+.calendar-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+    text-align: center;
+    font-weight: bold;
+}
+
+#calendar-body {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.calendar-day {
+    background-color: var(--card-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    min-height: 110px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.calendar-day.empty-day {
+    background-color: var(--empty-day-color);
+    border-color: var(--border-color);
+}
+
+.day-number {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.calendar-event {
+    background-color: var(--event-color);
+    color: var(--event-text-color);
+    padding: 5px;
+    margin-top: 5px;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+
+#reservations-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reservation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 2px solid var(--blue-dark);
+  border-radius: 10px;
+  background: var(--blue-tint);
+  padding: 20px;
+  margin: 5px;
+}
+.reservation-building {
+  font-style: italic;
+}
+.reservation-when {
+  font-weight: bold;
+}
+.reservation-cancel-button {
+  font-weight: bold;
+}
+
 #announcements-header {
   display: flex;
   justify-content: space-between;
@@ -63,7 +157,7 @@ hr {
   border: 2px solid var(--blue-dark);
   border-radius: 10px;
   background: var(--blue-tint);
-  padding: 20px; 0px;
+  padding: 20px 0px;
   margin: 5px;
 }
 .announcement-message-posted {
@@ -76,14 +170,17 @@ hr {
   background: none;
   font-size: large;
 }
-.announcement-message-clear-confirmation-dialog {
+.announcement-message-clear-confirmation-dialog,
+.reservation-cancel-confirmation-dialog {
   border: 4px solid red;
   font-weight: bold;
 }
-.announcement-message-clear-confirmation-dialog button {
+.announcement-message-clear-confirmation-dialog button,
+.reservation-cancel-confirmation-dialog button {
   font-weight: bold;
 }
-.announcement-message-clear-confirmation-dialog-buttons {
+.announcement-message-clear-confirmation-dialog-buttons,
+.reservation-cancel-confirmation-dialog-buttons {
   display: flex;
   justify-content: center;
   gap: 20px;
@@ -91,4 +188,3 @@ hr {
 /* .announcement-message-clear-confirmation-dialog-yes-button { */
 /*   color: red; */
 /* } */
-

@@ -18,14 +18,15 @@ Endpoints:
     GET  /rooms/{room_id}/slots
     GET  /all-reservations
     GET  /my-reservations
+    GET  /announcements
     POST /reservations/book     body: {"room_id": int, "slot": str}
     POST /reservations/cancel   body: {"reservation_id": int}
-    GET  /announcements
+    POST /reservations/cancel-all
 
 Search endpoints:
     GET  /slots
     GET  /buildings
-    GET  /availability/by-time?start=9&end=17 # get rooms 
+    GET  /availability/by-time?start=9&end=17 # get rooms
     GET  /availability/by-building?building=X
 """
 
@@ -36,6 +37,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 app = FastAPI(title="Mock Room Reservation API")
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -301,6 +303,18 @@ def cancel_reservation(req: CancelRequest):
             RESERVATIONS.pop(i)
             return {"cancelled": req.reservation_id}
     raise HTTPException(status_code=404, detail="Reservation not found")
+
+
+@app.post("/reservations/cancel-all")
+def cancel_all_reservations():
+    """
+    Cancel all of the logged-in user reservations
+    """
+    myReservations = [r["id"]
+                      for r in RESERVATIONS if r["reserved_by"] == "you"]
+    RESERVATIONS[:] = [r
+                       for r in RESERVATIONS if r["reserved_by"] != "you"]
+    return {"cancelled": myReservations}
 
 
 if __name__ == "__main__":
