@@ -155,7 +155,8 @@
 
         <!-- Announcement message template for populating unread announcements -->
         <template id="announcement-message-template">
-          <div class="announcement-message">
+          <div class="announcement-message" role="card" aria-label="Toggle announcement message content"
+            aria-expanded="false" tabindex="0">
             <!-- text and other information for announcement -->
             <article class="announcement-message-content">
               <h2 class="announcement-message-title">Announcement Title</h2>
@@ -164,7 +165,8 @@
               <p class="announcement-message-body" hidden>Announcement body.</p>
             </article>
             <!-- clearing announcement message -->
-            <button class="announcement-message-clear-button" type="button">❌</button> <!-- TODO: this is jank... -->
+            <!-- TODO: This button icon is kind of jank... -->
+            <button class="announcement-message-clear-button" type="button" aria-label="Clear announcement">❌</button>
           </div>
           <!-- clearing announcement confirmation -->
           <dialog class="announcement-message-clear-confirmation-dialog">

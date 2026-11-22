@@ -391,6 +391,12 @@ async function renderMyReservations() {
     reservationCard.setAttribute("aria-label", `Show details for room ${reservation.room_name}`);
     reservationCard.setAttribute("tabindex", "0");
     reservationCard.onclick = () => _openRoomDetails(roomDetailsDialog, reservation);
+    reservationCard.addEventListener("keydown", (e) => {
+      if (e.code === "Enter" || e.code === "Space") {
+        _openRoomDetails(roomDetailsDialog, reservation);
+        e.stopPropagation(); // stop downward scrolling that can occur with space
+      }
+    });
     card.querySelector(".reservation-room-details-close-button").onclick = () => roomDetailsDialog.close();
 
     // Reservation content
@@ -480,6 +486,12 @@ async function renderAnnouncements() {
     renderAnnouncements();
   }
 
+  // Toggle announcement message body contents.
+  function _toggleCardContents(messageBody) {
+    messageBody.hidden = !messageBody.hidden;
+    announcementMessage.setAttribute("aria-expanded", !messageBody.hidden); // hidden means it's not expanded
+  }
+
   function _createMessage(announcement) {
     // Uses message template to form message element.
     const messageTemplate = document.getElementById("announcement-message-template");
@@ -493,10 +505,15 @@ async function renderAnnouncements() {
     messageBody.textContent = announcement.body;
     // Open/Close announcement message
     const announcementMessage = message.querySelector(".announcement-message");
-    announcementMessage.setAttribute("aria-label", `Toggle announcement message content`);
     announcementMessage.onclick = () => {
-      messageBody.hidden = !messageBody.hidden;
+      _toggleCardContents(messageBody);
     };
+    announcementMessage.addEventListener("keydown", (e) => {
+      if (e.code === "Enter" || e.code === "Space") {
+        _toggleCardContents(messageBody);
+        e.stopPropagation(); // stop downward scrolling that can occur with space
+      }
+    });
 
     // Clear announcement
     const messageConfirmationDialog = message.querySelector(".announcement-message-clear-confirmation-dialog");
