@@ -49,9 +49,10 @@ async function apiPost(path, body) {
 function showError(msg) { document.getElementById("error").textContent = msg; }
 function clearError() { document.getElementById("error").textContent = ""; }
 
-function el(tag, text) {
+function el(tag, text, className) {
   const node = document.createElement(tag);
   if (text !== undefined) node.textContent = text;
+  if (className) node.className = className;
   return node;
 }
 
@@ -87,7 +88,16 @@ async function cancelAllReservations() {
 
 function selectRoom(roomId) {
   state.roomId = roomId;
+  updateActiveRoom();
   renderContent();
+}
+
+function updateActiveRoom() {
+  const container = document.getElementById("room-list");
+  if (!container) return;
+  for (const link of container.querySelectorAll("a")) {
+    link.classList.toggle("is-active", Number(link.dataset.roomId) === state.roomId);
+  }
 }
 
 async function renderSidebar() {
@@ -103,6 +113,8 @@ async function renderSidebar() {
     const link = el("a", `${room.name} (${room.building})`);
     link.setAttribute("tabindex", "-1");
     link.href = "#";
+    link.dataset.roomId = room.id;
+    if (room.id === state.roomId) link.classList.add("is-active");
     link.onclick = (e) => {
       e.preventDefault();
       selectRoom(room.id);

@@ -1,0 +1,313 @@
+/* ============================================================== */
+/* dashboard.css                                                  */
+/* Dashboard-only styling. Loaded after the shared style.css from */
+/* index.html, so its rules intentionally override the shared     */
+/* base for the dashboard page. The search page does NOT load     */
+/* this file, keeping the two pages visually independent.         */
+/*                                                                */
+/* Organized as: tokens -> layout shell -> reusable components    */
+/* (card, button, badge, chip) -> per-section modules. Each       */
+/* section is self-contained so pieces can be moved or reused.    */
+/* ============================================================== */
+
+/* -------------------------------------------------------------- */
+/* Design tokens                                                  */
+/* -------------------------------------------------------------- */
+:root {
+  --ink: #1b2430;
+  --muted: #5b6672;
+  --line: #e2e6ea;
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+
+  --radius: 0;
+  --radius-sm: 0;
+  --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.10);
+
+  --danger: #b00020;
+  --danger-bg: #fdecea;
+  --danger-line: #f2c7c7;
+  --ok: #1b5e20;
+  --ok-bg: #e8f5e9;
+
+  --space: 16px;
+}
+
+/* -------------------------------------------------------------- */
+/* Page shell                                                     */
+/* -------------------------------------------------------------- */
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Error banner (shared #error id, styled for the dashboard) */
+#error {
+  color: var(--danger);
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-line);
+  border-radius: var(--radius-sm);
+  margin: 16px 24px 0;
+  padding: 10px 14px;
+}
+#error:empty { display: none; }
+
+/* Dashboard layout: sidebar + main column, collapses on narrow screens */
+.dashboard {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: var(--space);
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .dashboard { grid-template-columns: 1fr; }
+}
+
+/* -------------------------------------------------------------- */
+/* Card (reusable surface)                                        */
+/* -------------------------------------------------------------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.card + .card { margin-top: var(--space); }
+
+.card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.card__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.muted { color: var(--muted); font-size: 14px; }
+
+/* -------------------------------------------------------------- */
+/* Button (reusable)                                              */
+/* -------------------------------------------------------------- */
+.btn {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+.btn:hover { background: var(--bg); }
+
+.btn--primary {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: var(--white);
+}
+.btn--primary:hover { background: var(--blue-dark); }
+
+.btn--danger {
+  background: var(--surface);
+  border-color: var(--danger-line);
+  color: var(--danger);
+}
+.btn--danger:hover { background: var(--danger-bg); }
+
+/* Square buttons everywhere on the dashboard */
+button { border-radius: 0; }
+
+/* Sidebar room links */
+#sidebar a {
+  display: block;
+  padding: 8px 10px;
+  color: var(--ink);
+  text-decoration: none;
+}
+#sidebar a:hover { background: var(--bg); }
+
+/* -------------------------------------------------------------- */
+/* Badge + chip (reusable inline tags)                            */
+/* -------------------------------------------------------------- */
+.badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 0;
+  background: var(--bg);
+  color: var(--muted);
+}
+.badge--open { background: transparent; padding-left: 0; color: var(--ok); }
+.badge--taken { background: transparent; padding-left: 0; color: var(--danger); }
+
+.chip {
+  display: inline-block;
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 0;
+  background: var(--blue-tint);
+  color: var(--blue-dark);
+}
+
+/* -------------------------------------------------------------- */
+/* Module: room list (sidebar)                                    */
+/* -------------------------------------------------------------- */
+.room-item {
+  display: block;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--ink);
+  border: 1px solid transparent;
+}
+.room-item:last-child { margin-bottom: 0; }
+.room-item:hover { background: var(--bg); }
+.room-item.is-active {
+  background: var(--blue-tint);
+  border-color: var(--blue);
+  color: var(--blue-dark);
+  font-weight: 600;
+}
+.room-item__name { display: block; }
+.room-item__building { display: block; font-size: 12px; color: var(--muted); }
+.room-item.is-active .room-item__building { color: var(--blue-dark); }
+
+/* -------------------------------------------------------------- */
+/* Module: calendar view placeholder (empty box for now)          */
+/* -------------------------------------------------------------- */
+.calendar-box { min-height: 420px; }
+
+/* -------------------------------------------------------------- */
+/* Module: reservation filter + multi-select                      */
+/* -------------------------------------------------------------- */
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+@media (max-width: 640px) {
+  .filter-grid { grid-template-columns: 1fr; }
+}
+
+.filter-field { display: flex; flex-direction: column; gap: 4px; }
+.filter-field__label { font-size: 12px; font-weight: 600; color: var(--muted); }
+
+/* multi-select control */
+.ms { position: relative; }
+.ms-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  font: inherit;
+  font-size: 13px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+}
+.ms-btn:hover { border-color: var(--muted); }
+.ms.is-open .ms-btn { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-tint); }
+.ms-value { flex: 1; text-align: left; color: var(--ink); }
+.ms-value.is-empty { color: var(--muted); }
+.ms-caret { color: var(--muted); font-size: 11px; }
+
+.ms-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+}
+.ms-menu[hidden] { display: none; }
+
+.ms-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.ms-option:hover { background: var(--bg); }
+.ms-option input { width: 15px; height: 15px; accent-color: var(--blue); }
+.ms-empty { padding: 8px; color: var(--muted); font-size: 13px; }
+
+.filter-results { margin-top: 14px; }
+.filter-results__count { margin-bottom: 8px; }
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+}
+.filter-row:last-child { border-bottom: none; }
+.filter-row__date { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 96px; }
+.filter-row__slot { font-variant-numeric: tabular-nums; color: var(--muted); min-width: 104px; }
+.filter-row__who { font-weight: 600; }
+
+/* -------------------------------------------------------------- */
+/* Module: room header                                            */
+/* -------------------------------------------------------------- */
+.room-header__name { margin: 0 0 8px; font-size: 22px; }
+.room-header__meta { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* -------------------------------------------------------------- */
+/* Module: availability slots                                     */
+/* -------------------------------------------------------------- */
+.slot-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.slot-row:last-child { border-bottom: none; }
+.slot-row__time { font-variant-numeric: tabular-nums; min-width: 110px; font-weight: 600; }
+.slot-row__who { color: var(--muted); font-size: 13px; }
+.slot-row__spacer { flex: 1; }
+
+/* -------------------------------------------------------------- */
+/* Module: my reservations                                        */
+/* -------------------------------------------------------------- */
+.reservation-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.reservation-row:last-child { border-bottom: none; }
+.reservation-row__text { flex: 1; }

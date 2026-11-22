@@ -23,6 +23,9 @@
     transform: translate(-50%, 0);
 }
 
+/* Pull the shared nav bar flush to the top/edges, space below (search page only) */
+.app-bar { margin: -16px -16px 24px; }
+
 .search {
     display: flex;
     flex-direction: column;

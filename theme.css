@@ -1,0 +1,57 @@
+/* ==============================================================
+ * theme.css
+ * Dark mode, shared by every page. Activated by data-theme="dark"
+ * on <html> (set by accessibility.js + an inline head script).
+ * Works mostly by re-pointing the existing color tokens; a few
+ * rules that hard-code light colors are overridden directly.
+ * Brand blue and white-on-blue text are intentionally left alone.
+ * ============================================================== */
+
+:root[data-theme="dark"] {
+  /* dashboard.css tokens */
+  --ink: #e6e9ee;
+  --muted: #9aa4b2;
+  --line: #2a3340;
+  --bg: #0f141b;
+  --surface: #1a212b;
+  --danger: #ff6b6b;
+  --danger-bg: #3a1f22;
+  --danger-line: #5a2a2e;
+
+  /* style.css tokens */
+  --blue-tint: #1e2a44;
+  --card-color: #1a212b;
+  --background-color: #0f141b;
+  --border-color: #2a3340;
+  --empty-day-color: #141a22;
+  --event-color: #1e2a44;
+  --gray: #3a4552;
+}
+
+/* Base page (covers the search page, which has no body background) */
+:root[data-theme="dark"] body {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* Accessibility menu (nav.css hard-codes light colors) */
+:root[data-theme="dark"] .a11y-menu,
+:root[data-theme="dark"] .a11y-menu .btn {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+/* Search page surfaces that hard-code var(--white) / defaults */
+:root[data-theme="dark"] .room-card,
+:root[data-theme="dark"] .legend,
+:root[data-theme="dark"] .seg-open,
+:root[data-theme="dark"] .field select,
+:root[data-theme="dark"] .field input,
+:root[data-theme="dark"] #room-dialog {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
+}
+:root[data-theme="dark"] .seg-open:hover { background: var(--blue-tint); }
+:root[data-theme="dark"] .swatch { border-color: var(--line); }
