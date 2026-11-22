@@ -1,0 +1,108 @@
+/* ==============================================================
+ * dashboard-redesign.css
+ * Square-cornered, two-column layout with the calendar in focus.
+ * Rooms are styled as boxes that match the reservation tiles.
+ * Reservations + announcements content is untouched (their corners
+ * are squared to match the rest). Uses shared tokens, so dark mode
+ * keeps working.
+ * ============================================================== */
+
+.container { max-width: 1280px; }
+
+/* Two-column layout: filter + calendar (left), controls (right),
+   reservations + announcements full-width below. */
+.dash2 {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(300px, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.dash2__main { display: flex; flex-direction: column; gap: 20px; }
+.dash2__side { display: flex; flex-direction: column; gap: 20px; }
+.dash2__full {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.dash2__main .card,
+.dash2__side .card,
+.dash2__full .card { margin-top: 0; }
+
+@media (max-width: 860px) {
+  .dash2 { grid-template-columns: 1fr; }
+}
+
+/* Square, lightly elevated cards (reservations card excluded) */
+.card:not(#reservations) {
+  border-radius: 0;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 4px 14px rgba(16, 24, 40, 0.05);
+  padding: 20px;
+}
+.card:not(#reservations) .card__head {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
+}
+.card:not(#reservations) .card__title {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 16px;
+  color: var(--ink);
+}
+
+/* Square corners everywhere */
+.btn,
+.calendar-day,
+.reservation,
+.announcement-message { border-radius: 0; }
+
+/* Rooms as boxes that match the reservation tiles */
+#room-list { display: flex; flex-direction: column; gap: 8px; }
+#sidebar a {
+  display: block;
+  padding: 10px 12px;
+  background: transparent;
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+#sidebar a:hover { background: var(--blue-tint); }
+#sidebar a.is-active { color: var(--blue); }
+
+/* Calendar as the hero */
+.calendar-focus .calendar { margin: 0; }
+.calendar-focus #calendar-title { font-size: 22px; }
+.calendar-focus .calendar-weekdays { font-size: 14px; }
+.calendar-focus .calendar-day { min-height: 118px; }
+.calendar-controls button {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.calendar-controls button:hover { background: var(--blue-tint); }
+.calendar-day { transition: box-shadow .12s, border-color .12s; }
+.calendar-day:not(.empty-day):hover {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 2px var(--blue-tint);
+}
+
+/* Availability rows + primary Book button */
+.filter-row__who { color: var(--blue-dark); }
+#slots .row {
+  padding: 10px 2px;
+  border-bottom: 1px solid var(--line);
+}
+#slots .row:last-child { border-bottom: none; }
+#slots .row span { font-variant-numeric: tabular-nums; }
+#slots .row button {
+  margin-left: auto;
+  padding: 6px 14px;
+  border: 0;
+  background: var(--blue);
+  color: var(--white);
+  font-weight: 600;
+  cursor: pointer;
+}
+#slots .row button:hover { background: var(--blue-dark); }

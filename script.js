@@ -88,7 +88,16 @@ async function cancelAllReservations() {
 
 function selectRoom(roomId) {
   state.roomId = roomId;
+  updateActiveRoom();
   renderContent();
+}
+
+function updateActiveRoom() {
+  const container = document.getElementById("room-list");
+  if (!container) return;
+  for (const link of container.querySelectorAll("a")) {
+    link.classList.toggle("is-active", Number(link.dataset.roomId) === state.roomId);
+  }
 }
 
 async function renderSidebar() {
@@ -103,6 +112,8 @@ async function renderSidebar() {
   for (const room of rooms) {
     const link = el("a", `${room.name} (${room.building})`);
     link.href = "#";
+    link.dataset.roomId = room.id;
+    if (room.id === state.roomId) link.classList.add("is-active");
     link.onclick = (e) => {
       e.preventDefault();
       selectRoom(room.id);

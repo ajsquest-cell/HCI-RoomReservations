@@ -3,9 +3,11 @@
     <head>
         <meta charset="UTF-8">
         <title>Room Search: Time/Location</title>
+        <script>try { if (localStorage.getItem("theme") === "dark") document.documentElement.setAttribute("data-theme", "dark"); } catch (e) { }</script>
         <link rel="stylesheet" href="style.css">
         <link rel="stylesheet" href="nav.css">
         <link rel="stylesheet" href="search.css">
+        <link rel="stylesheet" href="theme.css">
     </head>
     <body>
         <header class="app-bar">
@@ -23,15 +25,8 @@
                             <button class="btn" type="button" data-a11y="contrast" disabled>Off</button>
                         </div>
                         <div class="a11y-option">
-                            <span>Text size</span>
-                            <span class="a11y-stepper">
-                                <button class="btn" type="button" data-a11y="text-dec" disabled>A−</button>
-                                <button class="btn" type="button" data-a11y="text-inc" disabled>A+</button>
-                            </span>
-                        </div>
-                        <div class="a11y-option">
                             <span>Dark mode</span>
-                            <button class="btn" type="button" data-a11y="dark" disabled>Off</button>
+                            <button class="btn" type="button" data-a11y="dark">Off</button>
                         </div>
                     </div>
                 </div>
