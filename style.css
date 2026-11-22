@@ -25,11 +25,15 @@ body {
 h1 { font-size: 24px; }
 h2 { font-size: 18px; }
 
-button:focus {
+button:focus,
+.room-gallery-thumbnails:focus {
   outline: 3px solid var(--blue);
   outline-offset: 2px;
   /* TODO: Z index for focus ring is a jank solution to my terribly designed cards... */
   z-index: 1;
+}
+.room-gallery-thumbnails:focus {
+  outline-offset: 0px;
 }
 
 .layout {
