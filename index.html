@@ -55,7 +55,7 @@
           <dialog class="reservation-cancel-confirmation-dialog">
             <p>Are you sure you want to cancel all of your reservations?</p>
             <div class="reservation-cancel-confirmation-dialog-buttons">
-              <button class="reservation-cancel-confirmation-dialog-no-button" type="button">No</button>
+              <button class="reservation-cancel-confirmation-dialog-no-button" type="button" autofocus>No</button>
               <button class="reservation-cancel-confirmation-dialog-yes-button" type="button">Yes</button>
             </div>
           </dialog>
@@ -91,7 +91,7 @@
           <dialog class="reservation-cancel-confirmation-dialog">
             <p>Are you sure you want to cancel this reservation?</p>
             <div class="reservation-cancel-confirmation-dialog-buttons">
-              <button class="reservation-cancel-confirmation-dialog-no-button" type="button">No</button>
+              <button class="reservation-cancel-confirmation-dialog-no-button" type="button" autofocus>No</button>
               <button class="reservation-cancel-confirmation-dialog-yes-button" type="button">Yes</button>
             </div>
           </dialog>
@@ -114,12 +114,12 @@
                   <button class="room-gallery-next" type="button" aria-label="Next room image">▶</button>
                 </div>
                 <p class="room-gallery-counter"># / #</p>
-                <div class="room-gallery-thumbnails">
+                <div class="room-gallery-thumbnails" role="group" aria-label="Image gallery" tabindex="0">
                   <!-- populated with room gallery thumbnail buttons for each image -->
                 </div>
               </div>
               <div class="reservation-room-details-buttons">
-                <button class="reservation-room-details-close-button" type="button">Close</button>
+                <button class="reservation-room-details-close-button" type="button" autofocus>Close</button>
               </div>
             </div>
           </dialog>
@@ -127,7 +127,7 @@
 
         <!-- Room gallery thumbnail button template for populating room details gallerys -->
         <template id="room-gallery-thumbnail-template">
-          <button class="room-gallery-thumbnail" type="button" aria-label="Show room image">
+          <button class="room-gallery-thumbnail" type="button" aria-label="Show room image" tabindex="-1">
             <img class="room-gallery-thumbnail-image" alt="">
           </button>
         </template>
@@ -146,7 +146,8 @@
           <dialog class="announcement-message-clear-confirmation-dialog">
             <p>Are you sure you want to remove all announcements?</p>
             <div class="announcement-message-clear-confirmation-dialog-buttons">
-              <button class="announcement-message-clear-confirmation-dialog-no-button" type="button">No</button>
+              <button class="announcement-message-clear-confirmation-dialog-no-button" type="button"
+                autofocus>No</button>
               <button class="announcement-message-clear-confirmation-dialog-yes-button" type="button">Yes</button>
             </div>
           </dialog>
@@ -179,7 +180,8 @@
           <dialog class="announcement-message-clear-confirmation-dialog">
             <p>Are you sure you want to remove this announcement?</p>
             <div class="announcement-message-clear-confirmation-dialog-buttons">
-              <button class="announcement-message-clear-confirmation-dialog-no-button" type="button">No</button>
+              <button class="announcement-message-clear-confirmation-dialog-no-button" type="button"
+                autofocus>No</button>
               <button class="announcement-message-clear-confirmation-dialog-yes-button" type="button">Yes</button>
             </div>
           </dialog>

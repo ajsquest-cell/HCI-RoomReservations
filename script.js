@@ -308,6 +308,22 @@ function renderRoomGallery(dialog, roomImages) {
   // ~~~Create thumbnail buttons for gallery~~~ //
 
   thumbnails.replaceChildren();
+  // Thumbnail arrow-key navigation
+  thumbnails.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") {
+      _showThumbnail(imageIndex + 1);
+      e.preventDefault(); // This is to stop scrolling left/right while focused on gallery
+    }
+    else if (e.key === "ArrowLeft") {
+      _showThumbnail(imageIndex - 1);
+      e.preventDefault(); // This is to stop scrolling left/right while focused on gallery
+    }
+    else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+      e.preventDefault(); // This is to stop scrolling up/down while focused on gallery
+    }
+
+    // Any other keys should use default settings
+  });
   for (let i = 0; i < images.length; i++) {
     thumbnails.appendChild(_createThumbnailButton(images[i], i));
   }
@@ -344,6 +360,7 @@ function renderRoomGallery(dialog, roomImages) {
     counter.textContent = `${imageIndex + 1} / ${images.length}`;
 
     // set border on currently shown thumbnail
+    // TODO: Probably bad practice
     thumbnails.children[prevIndex].style.borderColor = "transparent";
     thumbnails.children[imageIndex].style.borderColor = "black";
   }

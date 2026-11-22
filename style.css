@@ -25,6 +25,13 @@ body {
 h1 { font-size: 24px; }
 h2 { font-size: 18px; }
 
+button:focus {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+  /* TODO: Z index for focus ring is a jank solution to my terribly designed cards... */
+  z-index: 1;
+}
+
 .layout {
   display: flex;
   gap: 16px;
@@ -208,6 +215,7 @@ hr {
   cursor: pointer;
   height: 80px; /* TODO: should be dynamic */
 }
+
 .room-gallery-image {
   flex: 1;
   min-width: 0;
@@ -235,6 +243,7 @@ hr {
   cursor: pointer;
   scroll-snap-align: start;
 }
+
 .room-gallery-thumbnail img {
   display: block;
   width: 64px;

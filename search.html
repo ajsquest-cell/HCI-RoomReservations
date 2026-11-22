@@ -106,9 +106,11 @@
                         <button class="room-gallery-next" type="button" aria-label="Next room image">▶</button>
                     </div>
                     <p class="room-gallery-counter"># / #</p>
-                    <div class="room-gallery-thumbnails"></div>
+                    <div class="room-gallery-thumbnails" role="group" aria-label="Image gallery" tabindex="0">
+                        <!-- populated with room gallery thumbnail buttons for each image -->
+                    </div>
                 </div>
-                <button class="book-all-btn" onclick="closeDetails()">Close</button>
+                <button class="book-all-btn" onclick="closeDetails()" autofocus>Close</button>
             </div>
         </dialog>
 
@@ -127,7 +129,7 @@
         </template>
 
         <template id="room-gallery-thumbnail-template">
-            <button class="room-gallery-thumbnail" type="button" aria-label="Show room image">
+            <button class="room-gallery-thumbnail" type="button" aria-label="Show room image" tabindex="-1">
                 <img class="room-gallery-thumbnail-image" alt="">
             </button>
         </template>
