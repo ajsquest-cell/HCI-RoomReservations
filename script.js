@@ -327,7 +327,8 @@ function renderRoomGallery(dialog, roomImages) {
   }
 
   function _showThumbnail(i) {
-    // cycle through thumbnails if reach edge
+    let prevIndex = imageIndex;
+    // cycle through thumbnails if edge reached
     if (i >= images.length) {
       imageIndex = 0;
     }
@@ -341,6 +342,10 @@ function renderRoomGallery(dialog, roomImages) {
     image.src = images[imageIndex].src;
     image.alt = images[imageIndex].alt || "";
     counter.textContent = `${imageIndex + 1} / ${images.length}`;
+
+    // set border on currently shown thumbnail
+    thumbnails.children[prevIndex].style.borderColor = "transparent";
+    thumbnails.children[imageIndex].style.borderColor = "black";
   }
 
 }

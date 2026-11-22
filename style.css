@@ -201,6 +201,12 @@ hr {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-height: 100px;
+}
+.room-gallery-viewer button {
+  font-size: large;
+  cursor: pointer;
+  height: 80px; /* TODO: should be dynamic */
 }
 .room-gallery-image {
   flex: 1;
@@ -209,11 +215,6 @@ hr {
   object-fit: contain;
   background: var(--white);
   border-radius: 6px;
-}
-.room-gallery-prev,
-.room-gallery-next {
-  font-size: large;
-  cursor: pointer;
 }
 .room-gallery-counter {
   text-align: center;
@@ -228,7 +229,7 @@ hr {
 .room-gallery-thumbnail {
   flex: none;
   padding: 0;
-  border: 2px solid transparent;
+  border: 4px solid transparent;
   border-radius: 4px;
   background: none;
   cursor: pointer;
