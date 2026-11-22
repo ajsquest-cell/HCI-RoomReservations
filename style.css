@@ -291,8 +291,10 @@ hr {
 .reservation-cancel-button {
   flex: 1;
   border: none;
-  background: wheat;
+  background: var(--blue);
+  color: var(--white);
   font-size: large;
+  font-weight: 600;
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
 }
