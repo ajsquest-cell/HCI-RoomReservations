@@ -111,6 +111,7 @@ async function renderSidebar() {
 
   for (const room of rooms) {
     const link = el("a", `${room.name} (${room.building})`);
+    link.setAttribute("tabindex", "-1");
     link.href = "#";
     link.dataset.roomId = room.id;
     if (room.id === state.roomId) link.classList.add("is-active");
@@ -319,6 +320,22 @@ function renderRoomGallery(dialog, roomImages) {
   // ~~~Create thumbnail buttons for gallery~~~ //
 
   thumbnails.replaceChildren();
+  // Thumbnail arrow-key navigation
+  thumbnails.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") {
+      _showThumbnail(imageIndex + 1);
+      e.preventDefault(); // This is to stop scrolling left/right while focused on gallery
+    }
+    else if (e.key === "ArrowLeft") {
+      _showThumbnail(imageIndex - 1);
+      e.preventDefault(); // This is to stop scrolling left/right while focused on gallery
+    }
+    else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+      e.preventDefault(); // This is to stop scrolling up/down while focused on gallery
+    }
+
+    // Any other keys should use default settings
+  });
   for (let i = 0; i < images.length; i++) {
     thumbnails.appendChild(_createThumbnailButton(images[i], i));
   }
@@ -327,6 +344,7 @@ function renderRoomGallery(dialog, roomImages) {
   function _createThumbnailButton(image, i) {
     const thumbnailButtonTemplate = document.getElementById("room-gallery-thumbnail-template");
     const button = thumbnailButtonTemplate.content.firstElementChild.cloneNode(true);
+    button.setAttribute("aria-label", `Show room image ${i + 1}`);
     button.onclick = () => _showThumbnail(i);
 
     const thumbnail = button.querySelector(".room-gallery-thumbnail-image");
@@ -337,7 +355,8 @@ function renderRoomGallery(dialog, roomImages) {
   }
 
   function _showThumbnail(i) {
-    // cycle through thumbnails if reach edge
+    let prevIndex = imageIndex;
+    // cycle through thumbnails if edge reached
     if (i >= images.length) {
       imageIndex = 0;
     }
@@ -351,6 +370,11 @@ function renderRoomGallery(dialog, roomImages) {
     image.src = images[imageIndex].src;
     image.alt = images[imageIndex].alt || "";
     counter.textContent = `${imageIndex + 1} / ${images.length}`;
+
+    // set border on currently shown thumbnail
+    // TODO: Probably bad practice
+    thumbnails.children[prevIndex].style.borderColor = "transparent";
+    thumbnails.children[imageIndex].style.borderColor = "black";
   }
 
 }
@@ -397,7 +421,9 @@ async function renderMyReservations() {
 
     // Room details popup
     const roomDetailsDialog = card.querySelector(".reservation-room-details-dialog");
-    card.querySelector(".reservation").onclick = () => _openRoomDetails(roomDetailsDialog, reservation);
+    const reservationCard = card.querySelector(".reservation-card-button");
+    reservationCard.setAttribute("aria-label", `Show details for room ${reservation.room_name}`);
+    reservationCard.onclick = () => _openRoomDetails(roomDetailsDialog, reservation);
     card.querySelector(".reservation-room-details-close-button").onclick = () => roomDetailsDialog.close();
 
     // Reservation content
@@ -416,12 +442,12 @@ async function renderMyReservations() {
 
     // Cancel reservation
     const cancelConfirmationDialog = card.querySelector(".reservation-cancel-confirmation-dialog");
+    card.querySelector(".reservation-cancel-confirmation-dialog-no-button").onclick = () => {
+      cancelConfirmationDialog.close();
+    };
     card.querySelector(".reservation-cancel-confirmation-dialog-yes-button").onclick = () => {
       cancelConfirmationDialog.close();
       cancelReservation(reservation.id);
-    };
-    card.querySelector(".reservation-cancel-confirmation-dialog-no-button").onclick = () => {
-      cancelConfirmationDialog.close();
     };
 
     card.querySelector(".reservation-cancel-button").onclick = (event) => {
@@ -499,8 +525,10 @@ async function renderAnnouncements() {
     const messageBody = message.querySelector(".announcement-message-body");
     messageBody.textContent = announcement.body;
     // Open/Close announcement message
-    message.querySelector(".announcement-message").onclick = () => {
+    const announcementMessageButton = message.querySelector(".announcement-message-card-button");
+    announcementMessageButton.onclick = () => {
       messageBody.hidden = !messageBody.hidden;
+      announcementMessageButton.setAttribute("aria-expanded", !messageBody.hidden); // hidden means it's not expanded
     };
 
     // Clear announcement

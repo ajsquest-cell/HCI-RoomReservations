@@ -25,6 +25,17 @@ body {
 h1 { font-size: 24px; }
 h2 { font-size: 18px; }
 
+button:focus,
+.room-gallery-thumbnails:focus {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+  /* TODO: Z index for focus ring is a jank solution to my terribly designed cards... */
+  z-index: 1;
+}
+.room-gallery-thumbnails:focus {
+  outline-offset: 0px;
+}
+
 .layout {
   display: flex;
   gap: 16px;
@@ -117,40 +128,14 @@ hr {
     font-size: 13px;
 }
 
-
-#reservations-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.reservation {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 2px solid var(--blue-dark);
-  border-radius: 10px;
-  background: var(--blue-tint);
-  padding: 20px;
-  margin: 5px;
+.reservation-content {
+  flex: 1;
 }
 .reservation-building {
   font-style: italic;
 }
 .reservation-when {
   font-weight: bold;
-}
-.reservation-cancel-button {
-  font-weight: bold;
-}
-
-/* Room images */
-.reservation {
-  gap: 16px;
-  cursor: pointer;
-}
-.reservation-content {
-  flex: 1;
 }
 
 .reservation-room-thumbnail-box [hidden],
@@ -166,6 +151,9 @@ hr {
   padding: 12px 16px;
   background: var(--blue);
   color: var(--white);
+}
+.reservation-room-details-dialog-body {
+  padding: 10px;
 }
 .reservation-room-details-info {
   display: flex;
@@ -224,7 +212,14 @@ hr {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-height: 100px;
 }
+.room-gallery-viewer button {
+  font-size: large;
+  cursor: pointer;
+  height: 80px; /* TODO: should be dynamic */
+}
+
 .room-gallery-image {
   flex: 1;
   min-width: 0;
@@ -232,11 +227,6 @@ hr {
   object-fit: contain;
   background: var(--white);
   border-radius: 6px;
-}
-.room-gallery-prev,
-.room-gallery-next {
-  font-size: large;
-  cursor: pointer;
 }
 .room-gallery-counter {
   text-align: center;
@@ -251,12 +241,13 @@ hr {
 .room-gallery-thumbnail {
   flex: none;
   padding: 0;
-  border: 2px solid transparent;
+  border: 4px solid transparent;
   border-radius: 4px;
   background: none;
   cursor: pointer;
   scroll-snap-align: start;
 }
+
 .room-gallery-thumbnail img {
   display: block;
   width: 64px;
@@ -264,32 +255,54 @@ hr {
   object-fit: cover;
 }
 
-#announcements-header {
+#announcements-header,
+#reservations-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.announcement-message {
+.announcement-message-card,
+.reservation-card {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: row;
   border: 2px solid var(--blue-dark);
   border-radius: 10px;
   background: var(--blue-tint);
-  padding: 20px 0px;
-  margin: 5px;
+}
+.announcement-message-card-button {
+  display: flex;
+  flex: 0 0 90%;
+}
+.reservation-card-button {
+  display: flex;
+  align-items: center;
+  flex: 0 0 80%;
+}
+.announcement-message-card-button,
+.reservation-card-button {
+  border: none;
+  background: none;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.announcement-message-clear-button,
+.reservation-cancel-button {
+  flex: 1;
+  border: none;
+  background: var(--blue);
+  color: var(--white);
+  font-size: large;
+  font-weight: 600;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 .announcement-message-posted {
   font-size: small;
   font-style: italic;
 }
 
-.announcement-message-clear-button {
-  border: none;
-  background: none;
-  font-size: large;
-}
 .announcement-message-clear-confirmation-dialog,
 .reservation-cancel-confirmation-dialog {
   border: 4px solid red;
