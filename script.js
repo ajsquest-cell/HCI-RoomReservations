@@ -101,6 +101,7 @@ async function renderSidebar() {
 
   for (const room of rooms) {
     const link = el("a", `${room.name} (${room.building})`);
+    link.setAttribute("tabindex", "-1");
     link.href = "#";
     link.onclick = (e) => {
       e.preventDefault();
@@ -315,6 +316,7 @@ function renderRoomGallery(dialog, roomImages) {
   function _createThumbnailButton(image, i) {
     const thumbnailButtonTemplate = document.getElementById("room-gallery-thumbnail-template");
     const button = thumbnailButtonTemplate.content.firstElementChild.cloneNode(true);
+    button.setAttribute("aria-label", `Show room image ${i + 1}`);
     button.onclick = () => _showThumbnail(i);
 
     const thumbnail = button.querySelector(".room-gallery-thumbnail-image");
@@ -385,7 +387,10 @@ async function renderMyReservations() {
 
     // Room details popup
     const roomDetailsDialog = card.querySelector(".reservation-room-details-dialog");
-    card.querySelector(".reservation").onclick = () => _openRoomDetails(roomDetailsDialog, reservation);
+    const reservationCard = card.querySelector(".reservation")
+    reservationCard.setAttribute("aria-label", `Show details for room ${reservation.room_name}`);
+    reservationCard.setAttribute("tabindex", "0");
+    reservationCard.onclick = () => _openRoomDetails(roomDetailsDialog, reservation);
     card.querySelector(".reservation-room-details-close-button").onclick = () => roomDetailsDialog.close();
 
     // Reservation content
@@ -404,12 +409,12 @@ async function renderMyReservations() {
 
     // Cancel reservation
     const cancelConfirmationDialog = card.querySelector(".reservation-cancel-confirmation-dialog");
+    card.querySelector(".reservation-cancel-confirmation-dialog-no-button").onclick = () => {
+      cancelConfirmationDialog.close();
+    };
     card.querySelector(".reservation-cancel-confirmation-dialog-yes-button").onclick = () => {
       cancelConfirmationDialog.close();
       cancelReservation(reservation.id);
-    };
-    card.querySelector(".reservation-cancel-confirmation-dialog-no-button").onclick = () => {
-      cancelConfirmationDialog.close();
     };
 
     card.querySelector(".reservation-cancel-button").onclick = (event) => {
@@ -487,7 +492,9 @@ async function renderAnnouncements() {
     const messageBody = message.querySelector(".announcement-message-body");
     messageBody.textContent = announcement.body;
     // Open/Close announcement message
-    message.querySelector(".announcement-message").onclick = () => {
+    const announcementMessage = message.querySelector(".announcement-message");
+    announcementMessage.setAttribute("aria-label", `Toggle announcement message content`);
+    announcementMessage.onclick = () => {
       messageBody.hidden = !messageBody.hidden;
     };
 
