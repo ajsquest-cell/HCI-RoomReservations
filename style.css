@@ -144,6 +144,126 @@ hr {
   font-weight: bold;
 }
 
+/* Room images */
+.reservation {
+  gap: 16px;
+  cursor: pointer;
+}
+.reservation-content {
+  flex: 1;
+}
+
+.reservation-room-thumbnail-box [hidden],
+.reservation-room-details-dialog [hidden],
+.room-gallery [hidden] {
+  display: none;
+}
+.reservation-room-details-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+.reservation-room-details-name {
+  margin: 0;
+  padding: 12px 16px;
+  background: var(--blue);
+  color: var(--white);
+}
+.reservation-room-details-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px 15px;
+}
+.reservation-room-details-info p {
+  margin: 0;
+}
+.reservation-room-details-type {
+  text-transform: capitalize;
+}
+.reservation-room-thumbnail-box {
+  flex: none;
+  width: 96px;
+  height: 72px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--gray);
+}
+.reservation-room-thumbnail {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.reservation-room-details-dialog {
+  min-width: 320px;
+  padding: 0px;
+  border: none;
+  border-radius: 8px;
+}
+.reservation-room-details-buttons {
+  display: flex;
+  justify-content: center;
+}
+.reservation-room-details-close-button {
+  padding: 8px;
+  background: var(--blue);
+  color: var(--white);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.reservation-room-details-close-button:hover {
+  background: var(--blue-dark);
+}
+
+.reservation-room-details-close-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.room-gallery-viewer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.room-gallery-image {
+  flex: 1;
+  min-width: 0;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  background: var(--white);
+  border-radius: 6px;
+}
+.room-gallery-prev,
+.room-gallery-next {
+  font-size: large;
+  cursor: pointer;
+}
+.room-gallery-counter {
+  text-align: center;
+}
+.room-gallery-thumbnails {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px;
+}
+.room-gallery-thumbnail {
+  flex: none;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+  scroll-snap-align: start;
+}
+.room-gallery-thumbnail img {
+  display: block;
+  width: 64px;
+  height: 48px;
+  object-fit: cover;
+}
+
 #announcements-header {
   display: flex;
   justify-content: space-between;
