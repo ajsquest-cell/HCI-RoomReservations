@@ -387,9 +387,8 @@ async function renderMyReservations() {
 
     // Room details popup
     const roomDetailsDialog = card.querySelector(".reservation-room-details-dialog");
-    const reservationCard = card.querySelector(".reservation")
+    const reservationCard = card.querySelector(".reservation-card-button");
     reservationCard.setAttribute("aria-label", `Show details for room ${reservation.room_name}`);
-    reservationCard.setAttribute("tabindex", "0");
     reservationCard.onclick = () => _openRoomDetails(roomDetailsDialog, reservation);
     card.querySelector(".reservation-room-details-close-button").onclick = () => roomDetailsDialog.close();
 

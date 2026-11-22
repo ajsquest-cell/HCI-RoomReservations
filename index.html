@@ -69,20 +69,23 @@
 
         <!-- Reservation template for populating current user reservations -->
         <template id="reservation-template">
-          <div class="reservation">
-            <!-- room's main image thumbnail -->
-            <div class="reservation-room-thumbnail-box">
-              <img class="reservation-room-thumbnail" alt="" hidden>
-            </div>
-            <!-- room and time information for reservation -->
-            <article class="reservation-content">
-              <h2 class="reservation-room">Room Name</h2>
-              <p class="reservation-building">Building</p>
-              <p class="reservation-when"><time class="reservation-date">*date*</time> · <span
-                  class="reservation-slot">*slot*</span></p>
-            </article>
+          <div class="reservation-card">
+            <button class="reservation-card-button" type="button" aria-label="Open reservation details dialog"
+              aria-expanded="false">
+              <!-- room's main image thumbnail -->
+              <div class="reservation-room-thumbnail-box">
+                <img class="reservation-room-thumbnail" alt="" hidden>
+              </div>
+              <!-- room and time information for reservation -->
+              <article class="reservation-content">
+                <h2 class="reservation-room">Room Name</h2>
+                <p class="reservation-building">Building</p>
+                <p class="reservation-when"><time class="reservation-date">*date*</time> · <span
+                    class="reservation-slot">*slot*</span></p>
+              </article>
+            </button>
             <!-- cancelling reservation -->
-            <button class="reservation-cancel-button" type="button">Cancel</button>
+            <button class="reservation-cancel-button" type="button">Cancel Reservation</button>
           </div>
           <!-- cancelling reservation confirmation -->
           <dialog class="reservation-cancel-confirmation-dialog">
@@ -96,26 +99,28 @@
           <!-- room details popup (opened by clicking the reservation) -->
           <dialog class="reservation-room-details-dialog">
             <h2 class="reservation-room-details-name">Room Name</h2>
-            <div class="reservation-room-details-info">
-              <p>Building: <span class="reservation-room-details-building">*details*</span></p>
-              <p>Capacity: <span class="reservation-room-details-capacity">*details*</span></p>
-              <p>Type: <span class="reservation-room-details-type">*details*</span></p>
-              <p>Equipment: <span class="reservation-room-details-equipment">*details*</span></p>
-            </div>
-            <!-- room image gallery -->
-            <div class="room-gallery" hidden>
-              <div class="room-gallery-viewer">
-                <button class="room-gallery-prev" type="button" aria-label="Previous room image">◀</button>
-                <img class="room-gallery-image" alt="">
-                <button class="room-gallery-next" type="button" aria-label="Next room image">▶</button>
+            <div class="reservation-room-details-dialog-body">
+              <div class="reservation-room-details-info">
+                <p>Building: <span class="reservation-room-details-building">*details*</span></p>
+                <p>Capacity: <span class="reservation-room-details-capacity">*details*</span></p>
+                <p>Type: <span class="reservation-room-details-type">*details*</span></p>
+                <p>Equipment: <span class="reservation-room-details-equipment">*details*</span></p>
               </div>
-              <p class="room-gallery-counter"># / #</p>
-              <div class="room-gallery-thumbnails">
-                <!-- populated with room gallery thumbnail buttons for each image -->
+              <!-- room image gallery -->
+              <div class="room-gallery" hidden>
+                <div class="room-gallery-viewer">
+                  <button class="room-gallery-prev" type="button" aria-label="Previous room image">◀</button>
+                  <img class="room-gallery-image" alt="">
+                  <button class="room-gallery-next" type="button" aria-label="Next room image">▶</button>
+                </div>
+                <p class="room-gallery-counter"># / #</p>
+                <div class="room-gallery-thumbnails">
+                  <!-- populated with room gallery thumbnail buttons for each image -->
+                </div>
               </div>
-            </div>
-            <div class="reservation-room-details-buttons">
-              <button class="reservation-room-details-close-button" type="button">Close</button>
+              <div class="reservation-room-details-buttons">
+                <button class="reservation-room-details-close-button" type="button">Close</button>
+              </div>
             </div>
           </dialog>
         </template>

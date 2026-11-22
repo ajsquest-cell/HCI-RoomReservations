@@ -117,40 +117,14 @@ hr {
     font-size: 13px;
 }
 
-
-#reservations-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.reservation {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 2px solid var(--blue-dark);
-  border-radius: 10px;
-  background: var(--blue-tint);
-  padding: 20px;
-  margin: 5px;
+.reservation-content {
+  flex: 1;
 }
 .reservation-building {
   font-style: italic;
 }
 .reservation-when {
   font-weight: bold;
-}
-.reservation-cancel-button {
-  font-weight: bold;
-}
-
-/* Room images */
-.reservation {
-  gap: 16px;
-  cursor: pointer;
-}
-.reservation-content {
-  flex: 1;
 }
 
 .reservation-room-thumbnail-box [hidden],
@@ -166,6 +140,9 @@ hr {
   padding: 12px 16px;
   background: var(--blue);
   color: var(--white);
+}
+.reservation-room-details-dialog-body {
+  padding: 10px;
 }
 .reservation-room-details-info {
   display: flex;
@@ -264,41 +241,52 @@ hr {
   object-fit: cover;
 }
 
-#announcements-header {
+#announcements-header,
+#reservations-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.announcement-message-card {
+.announcement-message-card,
+.reservation-card {
   display: flex;
   flex-direction: row;
-  /* grid-template-columns: 9fr 1fr; */
-  /* justify-content: space-between; */
-  /* align-items: center; */
   border: 2px solid var(--blue-dark);
   border-radius: 10px;
   background: var(--blue-tint);
-  /* padding: 20px 0px; */
-  /* margin: 5px; */
 }
 .announcement-message-card-button {
   display: flex;
   flex: 0 0 90%;
+}
+.reservation-card-button {
+  display: flex;
+  align-items: center;
+  flex: 0 0 80%;
+}
+.announcement-message-card-button,
+.reservation-card-button {
   border: none;
   background: none;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.announcement-message-clear-button,
+.reservation-cancel-button {
+  flex: 1;
+  border: none;
+  background: wheat;
+  font-size: large;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 .announcement-message-posted {
   font-size: small;
   font-style: italic;
 }
 
-.announcement-message-clear-button {
-  flex: 1;
-  border: none;
-  background: wheat;
-  font-size: large;
-}
 .announcement-message-clear-confirmation-dialog,
 .reservation-cancel-confirmation-dialog {
   border: 4px solid red;
