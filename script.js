@@ -44,9 +44,10 @@ async function apiPost(path, body) {
 function showError(msg) { document.getElementById("error").textContent = msg; }
 function clearError() { document.getElementById("error").textContent = ""; }
 
-function el(tag, text) {
+function el(tag, text, className) {
   const node = document.createElement(tag);
   if (text !== undefined) node.textContent = text;
+  if (className) node.className = className;
   return node;
 }
 
