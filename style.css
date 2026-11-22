@@ -270,15 +270,23 @@ hr {
   align-items: center;
 }
 
-.announcement-message {
+.announcement-message-card {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: row;
+  /* grid-template-columns: 9fr 1fr; */
+  /* justify-content: space-between; */
+  /* align-items: center; */
   border: 2px solid var(--blue-dark);
   border-radius: 10px;
   background: var(--blue-tint);
-  padding: 20px 0px;
-  margin: 5px;
+  /* padding: 20px 0px; */
+  /* margin: 5px; */
+}
+.announcement-message-card-button {
+  display: flex;
+  flex: 0 0 90%;
+  border: none;
+  background: none;
 }
 .announcement-message-posted {
   font-size: small;
@@ -286,8 +294,9 @@ hr {
 }
 
 .announcement-message-clear-button {
+  flex: 1;
   border: none;
-  background: none;
+  background: wheat;
   font-size: large;
 }
 .announcement-message-clear-confirmation-dialog,

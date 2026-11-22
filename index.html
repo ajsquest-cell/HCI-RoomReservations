@@ -155,15 +155,17 @@
 
         <!-- Announcement message template for populating unread announcements -->
         <template id="announcement-message-template">
-          <div class="announcement-message" role="card" aria-label="Toggle announcement message content"
-            aria-expanded="false" tabindex="0">
-            <!-- text and other information for announcement -->
-            <article class="announcement-message-content">
-              <h2 class="announcement-message-title">Announcement Title</h2>
-              <p class="announcement-message-posted">Posted: <time
-                  class="announcement-message-posted-time">*time*</time></p>
-              <p class="announcement-message-body" hidden>Announcement body.</p>
-            </article>
+          <div class="announcement-message-card">
+            <button class="announcement-message-card-button" type="button"
+              aria-label="Toggle announcement message content" aria-expanded="false">
+              <!-- text and other information for announcement -->
+              <article class="announcement-message-content">
+                <h2 class="announcement-message-title">Announcement Title</h2>
+                <p class="announcement-message-posted">Posted: <time
+                    class="announcement-message-posted-time">*time*</time></p>
+                <p class="announcement-message-body" hidden>Announcement body.</p>
+              </article>
+            </button>
             <!-- clearing announcement message -->
             <!-- TODO: This button icon is kind of jank... -->
             <button class="announcement-message-clear-button" type="button" aria-label="Clear announcement">❌</button>
