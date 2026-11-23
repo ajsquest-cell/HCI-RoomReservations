@@ -72,3 +72,7 @@
 /* Reservation + announcement tiles: lift the border contrast on dark */
 :root[data-theme="dark"] .reservation-card,
 :root[data-theme="dark"] .announcement-message-card { border-color: var(--line); }
+
+/* Dark-blue text on dark surfaces is too low-contrast — brighten the blues */
+:root[data-theme="dark"] .filter-row__who,
+:root[data-theme="dark"] .room-link { color: #7ea6ff; }

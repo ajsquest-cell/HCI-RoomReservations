@@ -33,6 +33,13 @@
   color: var(--ink);
 }
 
+/* Reservation/announcement content and the filter selects sit inside
+   <button>s, which default to black text (unreadable in dark mode).
+   Make them follow the theme's text color instead. */
+.reservation-card-button,
+.announcement-message-card-button,
+.ms-btn { color: inherit; }
+
 /* Square corners on controls + reservation/announcement tiles */
 .btn,
 .calendar-day,
@@ -78,6 +85,20 @@
   margin-bottom: 0;
 }
 #announcements-header-text { font-size: 16px; }
+
+/* "Clear All Announcements" is a bare default button — give it the
+   same neutral button look as the rest (works in light and dark). */
+#announcement-clear-all-messages-button {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+#announcement-clear-all-messages-button:hover { background: var(--bg); }
 
 /* Even spacing between reservation / announcement tiles */
 #reservations-list,
