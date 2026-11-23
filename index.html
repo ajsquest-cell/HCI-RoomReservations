@@ -42,219 +42,194 @@
 
   <main class="container">
     <div class="dash2">
-      <!-- Wide left column: filter on top of the calendar -->
-      <div class="dash2__main">
-        <!-- Filter Reservations -->
-        <section class="card">
-          <div class="card__head">
-            <h2 class="card__title">Filter Reservations</h2>
-            <button class="btn" id="filter-clear" type="button" disabled>Clear</button>
-          </div>
-          <div class="filter-grid">
-            <div class="filter-field">
-              <span class="filter-field__label">User</span>
-              <div class="ms" id="filter-reserved_by"></div>
-            </div>
-            <div class="filter-field">
-              <span class="filter-field__label">Room</span>
-              <div class="ms" id="filter-room_name"></div>
-            </div>
-            <div class="filter-field">
-              <span class="filter-field__label">Building</span>
-              <div class="ms" id="filter-building"></div>
-            </div>
-          </div>
-          <div id="filter-results" class="filter-results"></div>
-        </section>
-
-        <!-- Calendar in focus -->
-        <section class="card calendar-focus">
-          <div class="calendar">
-            <div class="calendar-controls">
-              <button id="prev-month">Previous</button>
-              <h2 id="calendar-title"></h2>
-              <button id="next-month">Next</button>
-            </div>
-            <div class="calendar-weekdays">
-              <div>Sun</div>
-              <div>Mon</div>
-              <div>Tue</div>
-              <div>Wed</div>
-              <div>Thu</div>
-              <div>Fri</div>
-              <div>Sat</div>
-            </div>
-            <div id="calendar-body"></div>
-          </div>
-        </section>
-      </div>
-
-      <!-- Narrow right column: rooms + today's availability -->
-      <div class="dash2__side">
-        <aside class="card" id="sidebar">
-          <div class="card__head">
-            <h2 class="card__title">Rooms</h2>
-          </div>
-          <div id="room-list"></div>
-        </aside>
-
-        <!-- Room header + today's availability -->
-        <section class="card">
-          <div id="room-header"></div>
-          <div class="card__head" style="margin-top: 12px;">
-            <h2 class="card__title">Today's Availability</h2>
-          </div>
-          <div id="slots"></div>
-        </section>
-      </div>
-
-      <!-- Full-width below (reservations + announcements left untouched) -->
-      <div class="dash2__full">
-        <!-- My reservations (kept: template cards + dialogs + room gallery) -->
-        <section class="card" id="reservations">
-          <div class="card__head" id="reservations-header">
-            <h2 class="card__title" id="reservations-header-text">My Reservations (#)</h2>
-            <button class="btn btn--danger" id="reservation-cancel-all-button" type="button">
-              Cancel All Reservations</button>
-          </div>
-
-          <!-- cancel all reservations dialog -->
-          <div id="reservation-cancel-all"> <!-- Used to recycle confirmation dialog class -->
-            <dialog class="reservation-cancel-confirmation-dialog">
-              <p>Are you sure you want to cancel all of your reservations?</p>
-              <div class="reservation-cancel-confirmation-dialog-buttons">
-                <button class="reservation-cancel-confirmation-dialog-no-button" type="button" autofocus>No</button>
-                <button class="reservation-cancel-confirmation-dialog-yes-button" type="button">Yes</button>
-              </div>
-            </dialog>
-          </div>
-
-          <!-- all of the user's reservations -->
-          <div id="reservations-list">
-            <!-- populated by reservation cards (template) -->
-          </div>
-          <h3 id="reservations-none" hidden>You don't have any reservations yet.</h3>
-
-          <!-- Reservation template for populating current user reservations -->
-          <template id="reservation-template">
-            <div class="reservation-card">
-              <button class="reservation-card-button" type="button" aria-label="Open reservation details dialog"
-                aria-expanded="false">
-                <!-- room's main image thumbnail -->
-                <div class="reservation-room-thumbnail-box">
-                  <img class="reservation-room-thumbnail" alt="" hidden>
-                </div>
-                <!-- room and time information for reservation -->
-                <article class="reservation-content">
-                  <h2 class="reservation-room">Room Name</h2>
-                  <p class="reservation-building">Building</p>
-                  <p class="reservation-when"><time class="reservation-date">*date*</time> · <span
-                      class="reservation-slot">*slot*</span></p>
-                </article>
-              </button>
-              <!-- cancelling reservation -->
-              <button class="reservation-cancel-button" type="button">Cancel Reservation</button>
-            </div>
-            <!-- cancelling reservation confirmation -->
-            <dialog class="reservation-cancel-confirmation-dialog">
-              <p>Are you sure you want to cancel this reservation?</p>
-              <div class="reservation-cancel-confirmation-dialog-buttons">
-                <button class="reservation-cancel-confirmation-dialog-no-button" type="button" autofocus>No</button>
-                <button class="reservation-cancel-confirmation-dialog-yes-button" type="button">Yes</button>
-              </div>
-            </dialog>
-
-            <!-- room details popup (opened by clicking the reservation) -->
-            <dialog class="reservation-room-details-dialog">
-              <h2 class="reservation-room-details-name">Room Name</h2>
-              <div class="reservation-room-details-dialog-body">
-                <div class="reservation-room-details-info">
-                  <p>Building: <span class="reservation-room-details-building">*details*</span></p>
-                  <p>Capacity: <span class="reservation-room-details-capacity">*details*</span></p>
-                  <p>Type: <span class="reservation-room-details-type">*details*</span></p>
-                  <p>Equipment: <span class="reservation-room-details-equipment">*details*</span></p>
-                </div>
-                <!-- room image gallery -->
-                <div class="room-gallery" hidden>
-                  <div class="room-gallery-viewer">
-                    <button class="room-gallery-prev" type="button" aria-label="Previous room image">◀</button>
-                    <img class="room-gallery-image" alt="">
-                    <button class="room-gallery-next" type="button" aria-label="Next room image">▶</button>
-                  </div>
-                  <p class="room-gallery-counter"># / #</p>
-                  <div class="room-gallery-thumbnails" role="group" aria-label="Image gallery" tabindex="0">
-                    <!-- populated with room gallery thumbnail buttons for each image -->
-                  </div>
-                </div>
-                <div class="reservation-room-details-buttons">
-                  <button class="reservation-room-details-close-button" type="button" autofocus>Close</button>
-                </div>
-              </div>
-            </dialog>
-          </template>
-
-          <!-- Room gallery thumbnail button template for populating room details gallerys -->
-          <template id="room-gallery-thumbnail-template">
-            <button class="room-gallery-thumbnail" type="button" aria-label="Show room image" tabindex="-1">
-              <img class="room-gallery-thumbnail-image" alt="">
-            </button>
-          </template>
-        </section>
-
-        <!-- Announcements (left untouched) -->
-        <div id="announcements">
-          <div id="announcements-header">
-            <h2 id="announcements-header-text">Announcements (# unread)</h2>
-            <!-- clearing all announcements button and confirmation dialog -->
-            <button id="announcement-clear-all-messages-button" type="button">Clear All Announcements</button>
-          </div>
-
-          <!-- clear all announcements dialog -->
-          <div id="announcement-clear-all"> <!-- Used to recycle confirmation dialog class -->
-            <dialog class="announcement-message-clear-confirmation-dialog">
-              <p>Are you sure you want to remove all announcements?</p>
-              <div class="announcement-message-clear-confirmation-dialog-buttons">
-                <button class="announcement-message-clear-confirmation-dialog-no-button" type="button"
-                  autofocus>No</button>
-                <button class="announcement-message-clear-confirmation-dialog-yes-button" type="button">Yes</button>
-              </div>
-            </dialog>
-          </div>
-
-          <!-- all unread announcement messages -->
-          <div id="announcements-unread">
-            <!-- populated by announcement messages (template) -->
-          </div>
-          <h3 id="announcements-no-new-messages" hidden>No new announcements...</h3>
-
-          <!-- Announcement message template for populating unread announcements -->
-          <template id="announcement-message-template">
-            <div class="announcement-message-card">
-              <button class="announcement-message-card-button" type="button"
-                aria-label="Toggle announcement message content" aria-expanded="false">
-                <!-- text and other information for announcement -->
-                <article class="announcement-message-content">
-                  <h2 class="announcement-message-title">Announcement Title</h2>
-                  <p class="announcement-message-posted">Posted: <time
-                      class="announcement-message-posted-time">*time*</time></p>
-                  <p class="announcement-message-body" hidden>Announcement body.</p>
-                </article>
-              </button>
-              <!-- clearing announcement message -->
-              <!-- TODO: This button icon is kind of jank... -->
-              <button class="announcement-message-clear-button" type="button" aria-label="Clear announcement">❌</button>
-            </div>
-            <!-- clearing announcement confirmation -->
-            <dialog class="announcement-message-clear-confirmation-dialog">
-              <p>Are you sure you want to remove this announcement?</p>
-              <div class="announcement-message-clear-confirmation-dialog-buttons">
-                <button class="announcement-message-clear-confirmation-dialog-no-button" type="button"
-                  autofocus>No</button>
-                <button class="announcement-message-clear-confirmation-dialog-yes-button" type="button">Yes</button>
-              </div>
-            </dialog>
-          </template>
+      <!-- Filter Reservations -->
+      <section class="card">
+        <div class="card__head">
+          <h2 class="card__title">Filter Reservations</h2>
+          <button class="btn" id="filter-clear" type="button" disabled>Clear</button>
         </div>
+        <div class="filter-grid">
+          <div class="filter-field">
+            <span class="filter-field__label">User</span>
+            <div class="ms" id="filter-reserved_by"></div>
+          </div>
+          <div class="filter-field">
+            <span class="filter-field__label">Room</span>
+            <div class="ms" id="filter-room_name"></div>
+          </div>
+          <div class="filter-field">
+            <span class="filter-field__label">Building</span>
+            <div class="ms" id="filter-building"></div>
+          </div>
+        </div>
+        <div id="filter-results" class="filter-results"></div>
+      </section>
+
+      <!-- Calendar in focus -->
+      <section class="card calendar-focus">
+        <div class="calendar">
+          <div class="calendar-controls">
+            <button id="prev-month">Previous</button>
+            <h2 id="calendar-title"></h2>
+            <button id="next-month">Next</button>
+          </div>
+          <div class="calendar-weekdays">
+            <div>Sun</div>
+            <div>Mon</div>
+            <div>Tue</div>
+            <div>Wed</div>
+            <div>Thu</div>
+            <div>Fri</div>
+            <div>Sat</div>
+          </div>
+          <div id="calendar-body"></div>
+        </div>
+      </section>
+
+      <!-- My reservations -->
+      <section class="card" id="reservations">
+        <div class="card__head" id="reservations-header">
+          <h2 class="card__title" id="reservations-header-text">My Reservations (#)</h2>
+          <button class="btn btn--danger" id="reservation-cancel-all-button" type="button">
+            Cancel All Reservations</button>
+        </div>
+
+        <!-- cancel all reservations dialog -->
+        <div id="reservation-cancel-all"> <!-- Used to recycle confirmation dialog class -->
+          <dialog class="reservation-cancel-confirmation-dialog">
+            <p>Are you sure you want to cancel all of your reservations?</p>
+            <div class="reservation-cancel-confirmation-dialog-buttons">
+              <button class="reservation-cancel-confirmation-dialog-no-button" type="button" autofocus>No</button>
+              <button class="reservation-cancel-confirmation-dialog-yes-button" type="button">Yes</button>
+            </div>
+          </dialog>
+        </div>
+
+        <!-- all of the user's reservations -->
+        <div id="reservations-list">
+          <!-- populated by reservation cards (template) -->
+        </div>
+        <h3 id="reservations-none" hidden>You don't have any reservations yet.</h3>
+
+        <!-- Reservation template for populating current user reservations -->
+        <template id="reservation-template">
+          <div class="reservation-card">
+            <button class="reservation-card-button" type="button" aria-label="Open reservation details dialog"
+              aria-expanded="false">
+              <!-- room's main image thumbnail -->
+              <div class="reservation-room-thumbnail-box">
+                <img class="reservation-room-thumbnail" alt="" hidden>
+              </div>
+              <!-- room and time information for reservation -->
+              <article class="reservation-content">
+                <h2 class="reservation-room">Room Name</h2>
+                <p class="reservation-building">Building</p>
+                <p class="reservation-when"><time class="reservation-date">*date*</time> · <span
+                    class="reservation-slot">*slot*</span></p>
+              </article>
+            </button>
+            <!-- cancelling reservation -->
+            <button class="reservation-cancel-button" type="button">Cancel Reservation</button>
+          </div>
+          <!-- cancelling reservation confirmation -->
+          <dialog class="reservation-cancel-confirmation-dialog">
+            <p>Are you sure you want to cancel this reservation?</p>
+            <div class="reservation-cancel-confirmation-dialog-buttons">
+              <button class="reservation-cancel-confirmation-dialog-no-button" type="button" autofocus>No</button>
+              <button class="reservation-cancel-confirmation-dialog-yes-button" type="button">Yes</button>
+            </div>
+          </dialog>
+
+          <!-- room details popup (opened by clicking the reservation) -->
+          <dialog class="reservation-room-details-dialog">
+            <h2 class="reservation-room-details-name">Room Name</h2>
+            <div class="reservation-room-details-dialog-body">
+              <div class="reservation-room-details-info">
+                <p>Building: <span class="reservation-room-details-building">*details*</span></p>
+                <p>Capacity: <span class="reservation-room-details-capacity">*details*</span></p>
+                <p>Type: <span class="reservation-room-details-type">*details*</span></p>
+                <p>Equipment: <span class="reservation-room-details-equipment">*details*</span></p>
+              </div>
+              <!-- room image gallery -->
+              <div class="room-gallery" hidden>
+                <div class="room-gallery-viewer">
+                  <button class="room-gallery-prev" type="button" aria-label="Previous room image">◀</button>
+                  <img class="room-gallery-image" alt="">
+                  <button class="room-gallery-next" type="button" aria-label="Next room image">▶</button>
+                </div>
+                <p class="room-gallery-counter"># / #</p>
+                <div class="room-gallery-thumbnails" role="group" aria-label="Image gallery" tabindex="0">
+                  <!-- populated with room gallery thumbnail buttons for each image -->
+                </div>
+              </div>
+              <div class="reservation-room-details-buttons">
+                <button class="reservation-room-details-close-button" type="button" autofocus>Close</button>
+              </div>
+            </div>
+          </dialog>
+        </template>
+
+        <!-- Room gallery thumbnail button template for populating room details gallerys -->
+        <template id="room-gallery-thumbnail-template">
+          <button class="room-gallery-thumbnail" type="button" aria-label="Show room image" tabindex="-1">
+            <img class="room-gallery-thumbnail-image" alt="">
+          </button>
+        </template>
+      </section>
+
+      <!-- Announcements -->
+      <div id="announcements">
+        <div id="announcements-header">
+          <h2 id="announcements-header-text">Announcements (# unread)</h2>
+          <!-- clearing all announcements button and confirmation dialog -->
+          <button id="announcement-clear-all-messages-button" type="button">Clear All Announcements</button>
+        </div>
+
+        <!-- clear all announcements dialog -->
+        <div id="announcement-clear-all"> <!-- Used to recycle confirmation dialog class -->
+          <dialog class="announcement-message-clear-confirmation-dialog">
+            <p>Are you sure you want to remove all announcements?</p>
+            <div class="announcement-message-clear-confirmation-dialog-buttons">
+              <button class="announcement-message-clear-confirmation-dialog-no-button" type="button"
+                autofocus>No</button>
+              <button class="announcement-message-clear-confirmation-dialog-yes-button" type="button">Yes</button>
+            </div>
+          </dialog>
+        </div>
+
+        <!-- all unread announcement messages -->
+        <div id="announcements-unread">
+          <!-- populated by announcement messages (template) -->
+        </div>
+        <h3 id="announcements-no-new-messages" hidden>No new announcements...</h3>
+
+        <!-- Announcement message template for populating unread announcements -->
+        <template id="announcement-message-template">
+          <div class="announcement-message-card">
+            <button class="announcement-message-card-button" type="button"
+              aria-label="Toggle announcement message content" aria-expanded="false">
+              <!-- text and other information for announcement -->
+              <article class="announcement-message-content">
+                <h2 class="announcement-message-title">Announcement Title</h2>
+                <p class="announcement-message-posted">Posted: <time
+                    class="announcement-message-posted-time">*time*</time></p>
+                <p class="announcement-message-body" hidden>Announcement body.</p>
+              </article>
+            </button>
+            <!-- clearing announcement message -->
+            <!-- TODO: This button icon is kind of jank... -->
+            <button class="announcement-message-clear-button" type="button" aria-label="Clear announcement">❌</button>
+          </div>
+          <!-- clearing announcement confirmation -->
+          <dialog class="announcement-message-clear-confirmation-dialog">
+            <p>Are you sure you want to remove this announcement?</p>
+            <div class="announcement-message-clear-confirmation-dialog-buttons">
+              <button class="announcement-message-clear-confirmation-dialog-no-button" type="button"
+                autofocus>No</button>
+              <button class="announcement-message-clear-confirmation-dialog-yes-button" type="button">Yes</button>
+            </div>
+          </dialog>
+        </template>
       </div>
     </div>
   </main>

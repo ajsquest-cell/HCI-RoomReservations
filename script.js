@@ -56,15 +56,9 @@ function el(tag, text, className) {
   return node;
 }
 
-async function bookSlot(roomId, slot) {
-  if (await apiPost("/reservations/book", { room_id: roomId, slot })) {
-    renderContent();
-  }
-}
-
 async function cancelReservation(reservationId) {
   if (await apiPost("/reservations/cancel", { reservation_id: reservationId })) {
-    renderContent();
+    renderMyReservations();
   }
 }
 
@@ -82,65 +76,8 @@ function fetchRoomImages(roomId) {
 
 async function cancelAllReservations() {
   if (await apiPost("/reservations/cancel-all", {})) {
-    renderContent();
+    renderMyReservations();
   }
-}
-
-function selectRoom(roomId) {
-  state.roomId = roomId;
-  updateActiveRoom();
-  renderContent();
-}
-
-function updateActiveRoom() {
-  const container = document.getElementById("room-list");
-  if (!container) return;
-  for (const link of container.querySelectorAll("a")) {
-    link.classList.toggle("is-active", Number(link.dataset.roomId) === state.roomId);
-  }
-}
-
-async function renderSidebar() {
-  const container = document.getElementById("room-list");
-  const rooms = await apiGet("/rooms");
-  container.replaceChildren();
-
-  if (rooms.length && state.roomId === null) {
-    state.roomId = rooms[0].id;
-  }
-
-  for (const room of rooms) {
-    const link = el("a", `${room.name} (${room.building})`);
-    link.setAttribute("tabindex", "-1");
-    link.href = "#";
-    link.dataset.roomId = room.id;
-    if (room.id === state.roomId) link.classList.add("is-active");
-    link.onclick = (e) => {
-      e.preventDefault();
-      selectRoom(room.id);
-    };
-    container.appendChild(link);
-  }
-}
-
-async function renderContent() {
-  if (state.roomId === null) return;
-
-  await Promise.all([
-    renderRoomHeader(),
-    renderSlots(),
-    renderMyReservations(),
-    renderAnnouncements(),
-  ]);
-}
-
-async function renderRoomHeader() {
-  const room = await apiGet(`/rooms/${state.roomId}`, {});
-  const header = document.getElementById("room-header");
-  header.replaceChildren();
-  header.appendChild(el("h1", room.name || ""));
-  header.appendChild(el("h1",
-    `${room.building || ""} - capacity ${room.capacity || ""} - ${room.equipment || ""}`));
 }
 
 //equivalent to python's calendar.monthcalendar(year, month)
@@ -253,45 +190,15 @@ function addEvent(event) {
 
 // Initialize calendar
 function initializeCalendar(reservations) {
+  const prev = document.getElementById('prev-month');
+  const next = document.getElementById('next-month');
+  if (!prev || !next) return; // no calendar on this page (e.g. the search page)
 
-  console.log("Calling initializeCalendar...");
+  prev.addEventListener('click', () => changeMonth(-1));
+  next.addEventListener('click', () => changeMonth(1));
 
-  document.getElementById('prev-month').addEventListener('click', () => {
-    changeMonth(-1);
-  });
-
-  document.getElementById('next-month').addEventListener('click', () => {
-    changeMonth(1);
-  });
-
-  events = reservations
+  events = reservations;
   renderCalendar();
-}
-
-async function renderSlots() {
-  const container = document.getElementById("slots");
-  const slots = await apiGet(`/rooms/${state.roomId}/slots`);
-  container.replaceChildren();
-
-  for (const s of slots) {
-    const row = el("div");
-    row.className = "row";
-
-    let label = `${s.slot} - ${s.status}`;
-    if (s.reserved_by) label += ` (${s.reserved_by})`;
-    row.appendChild(el("span", label));
-
-    if (s.status === "available") {
-      const btn = el("button", "Book");
-      btn.onclick = () => bookSlot(state.roomId, s.slot);
-      row.appendChild(btn);
-    } else if (s.reserved_by === "you") {
-      const btn = el("button", "Cancel");
-      btn.onclick = () => cancelReservation(s.reservation_id);
-      row.appendChild(btn);
-    }
-    container.appendChild(row);
-  }
 }
 
 // Populates the .room-gallery inside the given dialog with a room's images.
@@ -380,12 +287,13 @@ function renderRoomGallery(dialog, roomImages) {
 }
 
 async function renderMyReservations() {
-  // Reservations can change outside of rendering (booking), so a fetch is necessary here...
-  state.myReservations = await apiGet("/my-reservations");
-
   const headerText = document.getElementById("reservations-header-text");
   const list = document.getElementById("reservations-list");
   const noReservations = document.getElementById("reservations-none");
+  if (!list) return; // not on the dashboard (e.g. the search page shares script.js)
+
+  // Reservations can change outside of rendering (booking), so a fetch is necessary here...
+  state.myReservations = await apiGet("/my-reservations");
 
   list.replaceChildren();
 
@@ -493,6 +401,7 @@ async function renderAnnouncements() {
   const headerText = document.getElementById("announcements-header-text");
   const unread = document.getElementById("announcements-unread");
   const noNewMessages = document.getElementById("announcements-no-new-messages");
+  if (!unread) return; // not on the dashboard (e.g. the search page shares script.js)
 
   unread.replaceChildren();
 
@@ -582,12 +491,10 @@ async function init() {
   state.announcements = await apiGet("/announcements");
 
   const reservations = await apiGet("/all-reservations");
-  // console.log("Reservations:", reservations);
-  // console.log("Is array:", Array.isArray(reservations));
 
-  // Initialize actual page
-  await renderSidebar();
-  await renderContent();
+  // Reservations and announcements render independently of any room
+  // selection (the dashboard no longer has a Rooms list or booking).
+  await Promise.all([renderMyReservations(), renderAnnouncements()]);
 
   initializeCalendar(reservations);
 }

@@ -1,73 +1,47 @@
 /* ==============================================================
  * dashboard-redesign.css
- * Square-cornered, two-column layout with the calendar in focus.
- * Rooms are styled as boxes that match the reservation tiles.
- * Reservations + announcements content is untouched (their corners
- * are squared to match the rest). Uses shared tokens, so dark mode
- * keeps working.
+ * Square, single-column dashboard: Filter, Calendar (in focus),
+ * My Reservations, Announcements. Layered over dashboard.css and
+ * uses the shared tokens so dark mode (theme.css) keeps working.
  * ============================================================== */
 
-.container { max-width: 1280px; }
+.container { max-width: 1100px; }
 
-/* Two-column layout: filter + calendar (left), controls (right),
-   reservations + announcements full-width below. */
+/* Single-column stack */
 .dash2 {
-  display: grid;
-  grid-template-columns: minmax(0, 2.2fr) minmax(300px, 1fr);
-  gap: 20px;
-  align-items: start;
-}
-.dash2__main { display: flex; flex-direction: column; gap: 20px; }
-.dash2__side { display: flex; flex-direction: column; gap: 20px; }
-.dash2__full {
-  grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
-.dash2__main .card,
-.dash2__side .card,
-.dash2__full .card { margin-top: 0; }
+.dash2 > .card,
+.dash2 > #announcements { margin-top: 0; }
 
-@media (max-width: 860px) {
-  .dash2 { grid-template-columns: 1fr; }
-}
-
-/* Square, lightly elevated cards (reservations card excluded) */
-.card:not(#reservations) {
+/* Square, lightly elevated cards */
+.card {
   border-radius: 0;
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 4px 14px rgba(16, 24, 40, 0.05);
   padding: 20px;
 }
-.card:not(#reservations) .card__head {
+.card__head {
   border-bottom: 1px solid var(--line);
   padding-bottom: 12px;
 }
-.card:not(#reservations) .card__title {
+.card__title {
   text-transform: none;
   letter-spacing: 0;
   font-size: 16px;
   color: var(--ink);
 }
 
-/* Square corners everywhere */
+/* Square corners on controls + reservation/announcement tiles */
 .btn,
 .calendar-day,
-.reservation,
-.announcement-message { border-radius: 0; }
-
-/* Rooms as boxes that match the reservation tiles */
-#room-list { display: flex; flex-direction: column; gap: 8px; }
-#sidebar a {
-  display: block;
-  padding: 10px 12px;
-  background: transparent;
-  color: var(--ink);
-  font-weight: 600;
-  text-decoration: none;
-}
-#sidebar a:hover { background: var(--blue-tint); }
-#sidebar a.is-active { color: var(--blue); }
+.reservation-card,
+.reservation-card-button,
+.announcement-message-card,
+.announcement-message-card-button,
+.reservation-cancel-button,
+.announcement-message-clear-button { border-radius: 0; }
 
 /* Calendar as the hero */
 .calendar-focus .calendar { margin: 0; }
@@ -88,21 +62,28 @@
   box-shadow: 0 0 0 2px var(--blue-tint);
 }
 
-/* Availability rows + primary Book button */
 .filter-row__who { color: var(--blue-dark); }
-#slots .row {
-  padding: 10px 2px;
+
+/* Announcements: give the section the same card shell as the
+   reservations card so the dashboard reads as one system. */
+#announcements {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 4px 14px rgba(16, 24, 40, 0.05);
+  padding: 20px;
+}
+#announcements-header {
   border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
+  margin-bottom: 0;
 }
-#slots .row:last-child { border-bottom: none; }
-#slots .row span { font-variant-numeric: tabular-nums; }
-#slots .row button {
-  margin-left: auto;
-  padding: 6px 14px;
-  border: 0;
-  background: var(--blue);
-  color: var(--white);
-  font-weight: 600;
-  cursor: pointer;
+#announcements-header-text { font-size: 16px; }
+
+/* Even spacing between reservation / announcement tiles */
+#reservations-list,
+#announcements-unread {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
 }
-#slots .row button:hover { background: var(--blue-dark); }

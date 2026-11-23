@@ -55,3 +55,20 @@
 }
 :root[data-theme="dark"] .seg-open:hover { background: var(--blue-tint); }
 :root[data-theme="dark"] .swatch { border-color: var(--line); }
+
+/* When/Where status segments */
+:root[data-theme="dark"] .seg-taken { background: #3a1f22; color: #ff9a9a; }
+:root[data-theme="dark"] .seg-mine { background: #1f3a24; color: #9ae6a6; }
+
+/* All modal dialogs default to a white <dialog> background — darken them
+   (reservation cancel, announcement clear, room details, search details) */
+:root[data-theme="dark"] dialog {
+  background: var(--surface);
+  color: var(--ink);
+}
+:root[data-theme="dark"] .reservation-room-details-dialog { border-color: var(--line); }
+:root[data-theme="dark"] .room-gallery-image { background: var(--surface); }
+
+/* Reservation + announcement tiles: lift the border contrast on dark */
+:root[data-theme="dark"] .reservation-card,
+:root[data-theme="dark"] .announcement-message-card { border-color: var(--line); }
