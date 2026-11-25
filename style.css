@@ -1,0 +1,322 @@
+:root {
+  --blue: #003591;
+  --white: #FFFFFF;
+  --gray: #A3A9AC;
+
+  --blue-dark: #00266B;
+  --blue-tint: #E6EBF4;
+
+  /* Colors */
+  --primary-color: #2563eb;
+  --secondary-color: #64748b;
+  --background-color: #f1f5f9;
+  --card-color: #ffffff;
+  --empty-day-color: #cac8c8;
+  --event-color: #dbeafe;
+  --border-color: #202229;
+}
+
+body {
+  font-family: sans-serif;
+  margin: 16px;
+}
+
+h1 { font-size: 24px; }
+h2 { font-size: 18px; }
+
+button:focus,
+.room-gallery-thumbnails:focus {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+  /* TODO: Z index for focus ring is a jank solution to my terribly designed cards... */
+  z-index: 1;
+}
+.room-gallery-thumbnails:focus {
+  outline-offset: 0px;
+}
+
+.layout {
+  display: flex;
+  gap: 16px;
+}
+
+.sidebar {
+  width: 25%;
+  padding: 8px;
+}
+
+.main {
+  width: 75%;
+  padding: 16px;
+}
+
+.sidebar a {
+  display: block;
+  margin: 4px 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+}
+
+hr {
+  margin: 8px 0;
+}
+
+#error {
+  color: #b00020;
+}
+
+/* Calendar container */
+.calendar {
+    width: 100%;
+    margin: 20px auto;
+}
+
+.calendar-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+    text-align: center;
+    font-weight: bold;
+}
+
+#calendar-body {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.calendar-day {
+    background-color: var(--card-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    min-height: 110px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.calendar-day.empty-day {
+    background-color: var(--empty-day-color);
+    border-color: var(--border-color);
+}
+
+.day-number {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.calendar-event {
+    background-color: var(--event-color);
+    color: var(--event-text-color);
+    padding: 5px;
+    margin-top: 5px;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.reservation-content {
+  flex: 1;
+}
+.reservation-building {
+  font-style: italic;
+}
+.reservation-when {
+  font-weight: bold;
+}
+
+.reservation-room-thumbnail-box [hidden],
+.reservation-room-details-dialog [hidden],
+.room-gallery [hidden] {
+  display: none;
+}
+.reservation-room-details-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+.reservation-room-details-name {
+  margin: 0;
+  padding: 12px 16px;
+  background: var(--blue);
+  color: var(--white);
+}
+.reservation-room-details-dialog-body {
+  padding: 10px;
+}
+.reservation-room-details-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px 15px;
+}
+.reservation-room-details-info p {
+  margin: 0;
+}
+.reservation-room-details-type {
+  text-transform: capitalize;
+}
+.reservation-room-thumbnail-box {
+  flex: none;
+  width: 96px;
+  height: 72px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--gray);
+}
+.reservation-room-thumbnail {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.reservation-room-details-dialog {
+  min-width: 320px;
+  padding: 0px;
+  border: none;
+  border-radius: 8px;
+}
+.reservation-room-details-buttons {
+  display: flex;
+  justify-content: center;
+}
+.reservation-room-details-close-button {
+  padding: 8px;
+  background: var(--blue);
+  color: var(--white);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.reservation-room-details-close-button:hover {
+  background: var(--blue-dark);
+}
+
+.reservation-room-details-close-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.room-gallery-viewer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 100px;
+}
+.room-gallery-viewer button {
+  font-size: large;
+  cursor: pointer;
+  height: 80px; /* TODO: should be dynamic */
+}
+
+.room-gallery-image {
+  flex: 1;
+  min-width: 0;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  background: var(--white);
+  border-radius: 6px;
+}
+.room-gallery-counter {
+  text-align: center;
+}
+.room-gallery-thumbnails {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px;
+}
+.room-gallery-thumbnail {
+  flex: none;
+  padding: 0;
+  border: 4px solid transparent;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+  scroll-snap-align: start;
+}
+
+.room-gallery-thumbnail img {
+  display: block;
+  width: 64px;
+  height: 48px;
+  object-fit: cover;
+}
+
+#announcements-header,
+#reservations-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.announcement-message-card,
+.reservation-card {
+  display: flex;
+  flex-direction: row;
+  border: 2px solid var(--blue-dark);
+  border-radius: 10px;
+  background: var(--blue-tint);
+}
+.announcement-message-card-button {
+  display: flex;
+  flex: 0 0 90%;
+}
+.reservation-card-button {
+  display: flex;
+  align-items: center;
+  flex: 0 0 80%;
+}
+.announcement-message-card-button,
+.reservation-card-button {
+  border: none;
+  background: none;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.announcement-message-clear-button,
+.reservation-cancel-button {
+  flex: 1;
+  border: none;
+  background: var(--blue);
+  color: var(--white);
+  font-size: large;
+  font-weight: 600;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+.announcement-message-posted {
+  font-size: small;
+  font-style: italic;
+}
+
+.announcement-message-clear-confirmation-dialog,
+.reservation-cancel-confirmation-dialog {
+  border: 4px solid red;
+  font-weight: bold;
+}
+.announcement-message-clear-confirmation-dialog button,
+.reservation-cancel-confirmation-dialog button {
+  font-weight: bold;
+}
+.announcement-message-clear-confirmation-dialog-buttons,
+.reservation-cancel-confirmation-dialog-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+/* .announcement-message-clear-confirmation-dialog-yes-button { */
+/*   color: red; */
+/* } */

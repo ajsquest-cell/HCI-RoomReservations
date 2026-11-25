@@ -16,16 +16,18 @@ Endpoints:
     GET  /rooms
     GET  /rooms/{room_id}
     GET  /rooms/{room_id}/slots
+    GET  /rooms/{room_id}/images
     GET  /all-reservations
     GET  /my-reservations
+    GET  /announcements
     POST /reservations/book     body: {"room_id": int, "slot": str}
     POST /reservations/cancel   body: {"reservation_id": int}
-    GET  /announcements
+    POST /reservations/cancel-all
 
 Search endpoints:
     GET  /slots
     GET  /buildings
-    GET  /availability/by-time?start=9&end=17 # get rooms 
+    GET  /availability/by-time?start=9&end=17 # get rooms
     GET  /availability/by-building?building=X
 """
 
@@ -36,6 +38,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 app = FastAPI(title="Mock Room Reservation API")
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -80,6 +83,44 @@ RESERVATIONS = [
 ]
 _next_reservation_id = 3
 
+# Images for each room by room id.
+#   "main":  the image used to represent the room
+#   "other": additional images, shown in image gallery
+# Rooms without an entry use MISSING_ROOM_IMAGE as their main image.
+ROOM_IMAGES = {
+    1: {
+        "main": {"src": "images/rooms/1/1.svg", "alt": "Study Room 204"},
+        "other": [
+            {"src": "images/rooms/1/2.svg", "alt": "Study Room 204 whiteboard"},
+            {"src": "images/rooms/1/3.svg", "alt": "Study Room 204 seating"},
+        ],
+    },
+    2: {
+        "main": {"src": "images/rooms/2/1.svg", "alt": "Study Room 210"},
+        "other": [
+            {"src": "images/rooms/2/2.svg", "alt": "Study Room 210 TV"},
+            {"src": "images/rooms/2/3.svg", "alt": "Study Room 210 seating"},
+        ],
+    },
+    3: {
+        "main": {"src": "images/rooms/3/1.svg", "alt": "Conference Room A"},
+        "other": [
+            {"src": "images/rooms/3/2.svg", "alt": "Conference Room A projector"},
+            {"src": "images/rooms/3/3.svg", "alt": "Conference Room A table"},
+        ],
+    },
+    4: {
+        "main": {"src": "images/rooms/4/1.svg", "alt": "Media Lab 1"},
+        "other": [],
+    },
+    # 5: {
+    #     "main": {},
+    #     "other": [],
+    # },
+}
+MISSING_ROOM_IMAGE = {"src": "images/rooms/default/MISSING_ROOM.svg",
+                      "alt": "No image available"}
+
 ANNOUNCEMENTS = [
     {
         "id": 1,
@@ -92,6 +133,18 @@ ANNOUNCEMENTS = [
         "title": "New group study pods added",
         "posted": "2026-08-18T10:00:00",
         "body": "Three new two-person study pods are now bookable on the library's second floor, including Group Study Pod C.",
+    },
+    {
+        "id": 3,
+        "title": "Media Lab 1 closed indefinitely",
+        "posted": "2026-09-21T10:00:00",
+        "body": "Media Lab 1 will be unavailable forever.",
+    },
+    {
+        "id": 4,
+        "title": "Disregard previous message about Media Lab 1",
+        "posted": "2026-09-21T10:00:25",
+        "body": "Apologies for the previous message. Media Lab 1 is still closed for equipment upgrades...",
     },
 ]
 
@@ -122,15 +175,23 @@ def _slot_reservation(room_id: int, slot: str):
             return r
     return None
 
-# Helper to get open slots for a room
+
 def _open_slots(room_id: int):
+    """
+    Helper to get open slots for a room
+    """
     return [slot for slot in SLOTS if not _slot_reservation(room_id, slot)]
 
-# slots within the start to end range
+
 def _slots_in_range(start: int, end: int):
+    """
+    slots within the start to end range
+    """
     return [slot for slot in SLOTS if start <= int(slot.split(':')[0]) < end]
 
+
 # GET
+
 
 def _enrich_reservations(reservations):
     """
@@ -169,6 +230,27 @@ def get_room_slots(room_id: int):
     return result
 
 
+@app.get("/rooms/{room_id}/images")
+def get_room_images(room_id: int):
+    """
+    Get a room's images. If the room has no images, then it will add
+    MISSING_ROOM_IMAGE to main before sending images.
+    """
+    room = _get_room_or_404(room_id)
+
+    images = ROOM_IMAGES.get(room_id, {})
+    main = images.get("main", {})
+    other = images.get("other", [])
+
+    # Use first "other" image as main, else use missing image.
+    if not main:
+        main = other.pop(0) if other else \
+            {**MISSING_ROOM_IMAGE,
+                "alt": f"No image available for {room['name']}"}
+
+    return {"main": main, "other": other}
+
+
 @app.get("/all-reservations")
 def get_all_reservations():
     return _enrich_reservations(RESERVATIONS)
@@ -187,25 +269,35 @@ def list_announcements():
 
 # Search
 
-# List all available slots
+
 @app.get("/slots")
 def list_slots():
+    """
+    List all available slots
+    """
     return SLOTS
 
-# List all buildings
+
 @app.get("/buildings")
 def list_buildings():
+    """
+    List all buildings
+    """
     return sorted({room["building"] for room in ROOMS})
 
-# Get available rooms by time slots
+
 @app.get("/availability/by-time")
 def get_rooms_by_time(start: int, end: int, min_capacity: int = 0):
+    """
+    Get available rooms by time slots
+    """
     if (start >= end):
         raise HTTPException(status_code=400, detail="Invalid time range")
     # get time range
     slots = _slots_in_range(start, end)
     if len(slots) != end - start:
-        raise HTTPException(status_code=400, detail="Time range includes non-open hours")
+        raise HTTPException(
+            status_code=400, detail="Time range includes non-open hours")
     available_rooms = []
     # find available rooms
     for room in ROOMS:
@@ -216,22 +308,31 @@ def get_rooms_by_time(start: int, end: int, min_capacity: int = 0):
             available_rooms.append(room)
     return available_rooms
 
-# Get avalability by building
+
 @app.get("/availability/by-building")
 def get_rooms_by_building(building: str, min_capacity: int = 0):
+    """
+    Get avalability by building
+    """
     if building not in {room["building"] for room in ROOMS}:
-        raise HTTPException(status_code=400, detail=f"Invalid building: {building}")
+        raise HTTPException(
+            status_code=400, detail=f"Invalid building: {building}")
 
     return [r for r in ROOMS if r["building"] == building and r["capacity"] >= min_capacity and _open_slots(r["id"])]
 
-# Get avalability by room
+
 @app.get("/availability/by-room")
 def get_rooms_by_room(room_id: int, start: int = 9, end: int = 17):
+    """
+    Get avalability by room
+    """
     _get_room_or_404(room_id)
     slots_in_range = _slots_in_range(start, end)
     return [slot for slot in slots_in_range if slot in _open_slots(room_id)]
 
+
 # POST
+
 
 @app.post("/reservations/book")
 def book_reservation(req: BookRequest):
@@ -262,6 +363,18 @@ def cancel_reservation(req: CancelRequest):
             RESERVATIONS.pop(i)
             return {"cancelled": req.reservation_id}
     raise HTTPException(status_code=404, detail="Reservation not found")
+
+
+@app.post("/reservations/cancel-all")
+def cancel_all_reservations():
+    """
+    Cancel all of the logged-in user reservations
+    """
+    myReservations = [r["id"]
+                      for r in RESERVATIONS if r["reserved_by"] == "you"]
+    RESERVATIONS[:] = [r
+                       for r in RESERVATIONS if r["reserved_by"] != "you"]
+    return {"cancelled": myReservations}
 
 
 if __name__ == "__main__":

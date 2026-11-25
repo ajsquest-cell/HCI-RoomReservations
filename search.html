@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Room Search: Time/Location</title>
+        <script>try { if (localStorage.getItem("theme") === "dark") document.documentElement.setAttribute("data-theme", "dark"); } catch (e) { }</script>
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="nav.css">
+        <link rel="stylesheet" href="search.css">
+        <link rel="stylesheet" href="theme.css">
+    </head>
+    <body>
+        <header class="app-bar">
+            <h1 class="app-bar__title">Room Reservations</h1>
+            <div class="app-bar__right">
+                <nav class="app-bar__nav">
+                    <a class="nav-link" href="index.html">Dashboard</a>
+                    <a class="nav-link is-active" href="search.html">When / Where</a>
+                </nav>
+                <div class="a11y" id="a11y">
+                    <button class="a11y-btn" id="a11y-btn" type="button" aria-haspopup="true" aria-expanded="false">Accessibility ▾</button>
+                    <div class="a11y-menu" id="a11y-menu" hidden>
+                        <div class="a11y-option">
+                            <span>High contrast</span>
+                            <button class="btn" type="button" data-a11y="contrast" disabled>Off</button>
+                        </div>
+                        <div class="a11y-option">
+                            <span>Dark mode</span>
+                            <button class="btn" type="button" data-a11y="dark">Off</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div id="error"></div>
+        
+        <div class="search">
+            
+            <!-- Search by time -->
+            <button class="search-toggle" onclick="toggle('time-section')">Search for available locations by time</button>
+            <div id="time-section" class="search-body" hidden>
+                <!-- input fields -->
+                <div class="fields">
+                    <label class="field">Start time
+                        <select id="start">
+                            <option value="">-- choose --</option>
+                            <option value="9">9:00</option>
+                            <option value="10">10:00</option>
+                            <option value="11">11:00</option>
+                            <option value="12">12:00</option>
+                            <option value="13">13:00</option>
+                            <option value="14">14:00</option>
+                            <option value="15">15:00</option>
+                            <option value="16">16:00</option>
+                        </select>
+                    </label>
+
+                    <label class="field">End time
+                        <select id="end">
+                            <option value="">-- choose --</option>
+                            <option value="10">10:00</option>
+                            <option value="11">11:00</option>
+                            <option value="12">12:00</option>
+                            <option value="13">13:00</option>
+                            <option value="14">14:00</option>
+                            <option value="15">15:00</option>
+                            <option value="16">16:00</option>
+                            <option value="17">17:00</option>
+                        </select>
+                    </label>
+
+                    <label class="field">Expected attendance (optional)
+                        <input id="time-attendance" type="number" min="1" step="1">
+                    </label>
+
+                    <button class="search-btn" onclick="searchByTime()">Search</button>
+                </div>
+
+                <div class="legend" hidden>
+                    <span class="legend-item"><span class="swatch seg-open"></span>Open</span>
+                    <span class="legend-item"><span class="swatch seg-open seg-selected"></span>Selected</span>
+                    <span class="legend-item"><span class="swatch seg-mine">✓</span>Booked by you</span>
+                    <span class="legend-item"><span class="swatch seg-taken">✗</span>Booked by someone else</span>
+                </div>
+
+                <!-- results -->
+                <div id="time-results" class="results"></div>
+            </div>
+
+        <!-- Search by location -->
+        <button class="search-toggle" onclick="toggle('building-section')">Search for available locations by building</button>
+            <div id="building-section" class="search-body" hidden>
+                <div class = "fields">
+                <!-- input fields -->
+                <label class="field">Building 
+                    <select id="building">
+                        <option value="">-- choose --</option>
+                    </select>
+                </label>
+                    <label class="field">Expected attendance (optional)
+                        <input id="building-attendance" type="number" min="1" step="1">
+                    </label>
+                    <button class="search-btn" onclick="searchByBuilding()">Search</button>
+                </div>
+
+                <div class="legend" hidden>
+                    <span class="legend-item"><span class="swatch seg-open"></span>Open</span>
+                    <span class="legend-item"><span class="swatch seg-open seg-selected"></span>Selected</span>
+                    <span class="legend-item"><span class="swatch seg-mine">✓</span>Booked by you</span>
+                    <span class="legend-item"><span class="swatch seg-taken">✗</span>Booked by someone else</span>
+                </div>
+
+                <!-- results -->
+                <div id="building-results" class="results"></div>
+            </div>
+        </div>
+
+        <!-- info popup -->
+        <dialog id="room-dialog">
+            <h2 id="details-name" class="details-title"></h2>
+            <div class="details-body">
+                <p>Building: <span id="details-building"></span></p>
+                <p>Capacity: <span id="details-capacity"></span></p>
+                <p>Type: <span id="details-type"></span></p>
+                <p>Equipment: <span id="details-equipment"></span></p>
+                <!-- room image gallery -->
+                <div class="room-gallery" hidden>
+                    <div class="room-gallery-viewer">
+                        <button class="room-gallery-prev" type="button" aria-label="Previous room image">◀</button>
+                        <img class="room-gallery-image" alt="">
+                        <button class="room-gallery-next" type="button" aria-label="Next room image">▶</button>
+                    </div>
+                    <p class="room-gallery-counter"># / #</p>
+                    <div class="room-gallery-thumbnails" role="group" aria-label="Image gallery" tabindex="0">
+                        <!-- populated with room gallery thumbnail buttons for each image -->
+                    </div>
+                </div>
+                <button class="book-all-btn" onclick="closeDetails()" autofocus>Close</button>
+            </div>
+        </dialog>
+
+        <!-- room card template to by copied in JS -->
+        <template id="room-card-template">
+            <div class="room-card">
+                <img class="room-card-thumbnail" alt="" hidden>
+                <a href="#" class="room-link"></a>
+                <div class="room-info"></div>
+                <div class="timeline-wrap">
+                    <div class="timeline"></div>
+                    <div class="selection">Click a start, then an end time</div>
+                    <button class="book-all-btn" disabled>Book selected</button>
+                </div>
+            </div>
+        </template>
+
+        <template id="room-gallery-thumbnail-template">
+            <button class="room-gallery-thumbnail" type="button" aria-label="Show room image" tabindex="-1">
+                <img class="room-gallery-thumbnail-image" alt="">
+            </button>
+        </template>
+
+        <template id="slot-template">
+            <button class="seg">
+                <span class="seg-hour"></span>
+                <span class="seg-icon"></span>
+            </button>
+        </template>
+
+        <div id="message"></div>
+
+        <!-- scripts -->
+        <script src="script.js"></script>
+        <script src="search.js"></script>
+        <script src="accessibility.js"></script>
+    </body>
+</html>
