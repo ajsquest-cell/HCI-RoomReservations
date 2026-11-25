@@ -16,6 +16,10 @@
   --border-color: #202229;
 }
 
+html.large-text {
+  font-size: 125%;
+}
+
 body {
   font-family: sans-serif;
   margin: 16px;

@@ -37,4 +37,25 @@
       applyDark(document.documentElement.dataset.theme !== "dark");
     });
   }
+
+  const textSizeBtn = root.querySelector('[data-a11y="text-size"]');
+  if (textSizeBtn) {
+    textSizeBtn.disabled = false;
+    textSizeBtn.addEventListener("click", () => {
+      const enabled = document.documentElement.classList.toggle("large-text");
+      textSizeBtn.textContent = enabled ? "On" : "Off";
+
+      
+    });
+  }
+  if (textSizeBtn) {
+
+  }
 })();
+
+
+
+
+function toggleLargeText(enabled) {
+
+}
